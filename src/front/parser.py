@@ -7,8 +7,8 @@ Created on Oct 15, 2014
 from front.lexer import tokens
 from structures import logic
 from structures.exceptions import ParserException
-from structures.graph import BaseGraph
-from structures.logic import Bool, Assert
+from structures.graph import BaseGraph, SageGraph
+from structures.logic import Bool, Assert, Keyword
 from structures.operation import BaseOperation
 
 
@@ -37,25 +37,21 @@ def p_vardecl(t):
     t[0] = t[1]
 
 def p_boolvardecl(t):
-    'boolvardecl : BOOL ID'
-    t[0] = [Bool(t[2], t.lineno)]
+    'boolvardecl : BOOL idprod'
+    t[0] = [Bool(t[2], t.lexer.lineno)]
     #bools[t[2]] = "bool"
     
 def p_graphvardecl(t):
-    'graphvardecl : GRAPH ID LPAREN NUMBER optgraphrange RPAREN graphdef'
-    t[0] = [BaseGraph(t[2], t[4], t[5], t[7], t.lineno)]
+    '''
+    graphvardecl : GRAPH idprod LPAREN NUMBER RPAREN graphdef
+                 | SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN 
+    '''
+    if t[1] == "graph":
+        t[0] = [BaseGraph(t[2], t[4], t[6], t.lexer.lineno)]
+    else:
+        t[0] = [SageGraph(t[3], t[4], t[6], t.lexer.lineno)]
     #graphs[t[2]] = (t[4], t[5], t[7])
     
-def p_optgraphrange(t):
-    '''
-    optgraphrange : COLON NUMBER
-                  | empty
-    '''
-    if len(t) == 3:
-        t[0] = t[2]
-    else:
-        t[0] = None
-
 def p_graphdef(t):
     '''
     graphdef : EQUALS LBRACKET exprlist RBRACKET
@@ -93,11 +89,11 @@ def p_nonemptylist(t):
     
 def p_assertdecl(t):
     'assertdecl : ASSERT expr'
-    t[0] = [Assert(t[2], t.lineno)]
+    t[0] = [Assert(t[2], t.lexer.lineno)]
 
 def p_operation(t):
-    'operation : ID LPAREN exprlist RPAREN'
-    t[0] = BaseOperation(t[1], t[3], t.lineno)
+    'operation : idprod LPAREN exprlist RPAREN'
+    t[0] = BaseOperation(t[1], t[3], t.lexer.lineno)
 
 def p_expression(t):
     '''
@@ -105,14 +101,14 @@ def p_expression(t):
          | expr OR expr
          | NOT expr
          | operation
-         | ID
+         | idprod
          | NUMBER
     '''
     if len(t) == 4:
-        if t[2] == '|'  : t[0] = logic.Op('or', [t[1], t[3]], t.lineno)
-        elif t[2] == '&': t[0] = logic.Op('and', [t[1], t[3]], t.lineno)
+        if t[2] == '|'  : t[0] = logic.Op(Keyword("or", t.lexer.lineno), [t[1], t[3]], t.lexer.lineno)
+        elif t[2] == '&': t[0] = logic.Op(Keyword("and", t.lexer.lineno), [t[1], t[3]], t.lexer.lineno)
     elif len(t) == 3:
-        t[0] = logic.Op('not', t[2], t.lineno)
+        t[0] = logic.Op('not', t[2], t.lexer.lineno)
     else:
         t[0] = t[1]
     
@@ -132,9 +128,13 @@ def p_expression_name(t):
         t[0] = 0
 '''
  
+def p_ID(p):
+    'idprod : ID'
+    p[0] = logic.ID(p[1], p.lexer.lineno) 
+ 
 def p_empty(p):
     'empty :'
     pass
 
 def p_error(t):
-    raise ParserException("syntax error at '" + str(t.value) + ".", t.lineno)
+    raise ParserException("syntax error at '" + str(t.value) + ".", t.lexer.lineno)

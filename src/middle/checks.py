@@ -4,7 +4,7 @@ Created on Oct 17, 2014
 @author: ezulkosk
 '''
 from structures.exceptions import NameNotFoundException, TypeException
-from structures.graph import BaseGraph
+from structures.graph import BaseGraph, SageGraph
 from structures.logic import Assert, Bool
 
 
@@ -21,34 +21,37 @@ def is_bool(arg):
 
 def resolve_and_type_check(program):
     for line in program.ast:
-        #print(line)
         if isinstance(line, Assert):
             expr_type = resolve_expr(program, line.expr)
             assert(is_bool(expr_type))
         elif isinstance(line, Bool):
-            program.bools[line.ID] = line
+            program.bools[line.ID.ID] = line
         elif isinstance(line, BaseGraph):
-            program.graphs[line.ID] = line
+            program.graphs[line.ID.ID] = line
+        elif isinstance(line, SageGraph):
+            program.graphs[line.ID.ID] = line
+        else:
+            raise NameNotFoundException(str(line), line.line_number)
 
 def resolve_expr(program, expr):
     try:
-        if expr.name == "and":
+        if expr.ID == "and":
             return resolve_and(program, expr.args[0], expr.args[1])
-        elif expr.name == "or":
+        elif expr.ID == "or":
             return resolve_or(program,expr.args[0], expr.args[1])
-        elif expr.name == "not":
+        elif expr.ID == "not":
             return resolve_not(program, expr.args[1])
         else:
             #defined operation
             return resolve_operation(program, expr)
     except AttributeError:
         #id lookup
-        if expr in program.bools:
+        if expr.ID in program.bools:
             return BoolType()
-        elif expr in program.graphs:
+        elif expr.ID in program.graphs:
             return GraphType()
         else:
-            raise NameNotFoundException(str(expr))
+            raise NameNotFoundException(str(expr.ID), expr.ID.line_number)
             
 def resolve_and(program, l,r):
     ltype = resolve_expr(program, l)
@@ -72,7 +75,8 @@ def resolve_not(program, e):
     return BoolType()
 
 def resolve_operation(program, e):
-    print("TODO: ops should be checked")
+    #print("TODO: ops should be checked")
+    #All ops are predicates for now.
     return BoolType()
 
 def skip(l):

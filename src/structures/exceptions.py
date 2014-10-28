@@ -39,5 +39,10 @@ class GraphOrderException(Exception):
         self.value = "graph " + ID + " with lower bound (" + str(lower) + ") > upper bound (" + str(upper) + ")"
     def __str__(self):
         return repr("GraphOrderException at line " + str(self.line_number) + ": " + self.value)
-    
-    
+ 
+class OperationNotSupportedException(Exception):
+    def __init__(self, value=None, line_number=-1):
+        self.line_number = line_number
+        self.value = value
+    def __str__(self):
+        return repr("OperationNotSupportedException at line " + str(self.line_number) + ": " + self.value)   

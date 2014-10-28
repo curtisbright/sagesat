@@ -4,15 +4,44 @@ Created on Oct 17, 2014
 @author: ezulkosk
 '''
 
+import sys
+
+import back.operations.eager
+import back.operations.lazy
+from structures.exceptions import OperationNotSupportedException
+from structures.logic import ID
+
+
 class BaseOperation():
     
     def __init__(self, name, args, line_number):
-        self.name = name
-        self.args = args
+        self.ID = name.ID
         self.line_number = line_number
+        #reflection using the op name
+        try:
+            attr = getattr(back.operations.lazy, self.ID)
+        except:
+            try:
+                attr = getattr(back.operations.eager, self.ID)
+            except:
+                raise OperationNotSupportedException(self.ID, self.line_number)
+        self.op = attr
+        self.args = args
+        
+    def map_vars(self, program):
+        temp_args = []
+        for i in self.args:
+            if isinstance(i, ID):
+                if i.ID in program.graphs.keys():
+                    temp_args.append(program.graphs[i.ID])
+                elif i.ID in program.bools.keys():
+                    temp_args.append(program.bools[i.ID])
+            else: 
+                temp_args.append(i)
+        return temp_args    
     
     def __str__(self):
-        return "(" + self.name + " " + " ".join([str(i) for i in self.args]) + ")"
+        return "(" + self.ID + " " + " ".join([str(i) for i in self.args]) + ")"
 
     def __repr__(self):
         return self.__str__()

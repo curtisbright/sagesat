@@ -18,25 +18,27 @@ tokens = (
     'LPAREN',
     'RPAREN',
     'LBRACKET',
-    'RBRACKET',
-    'COLON', 
+    'RBRACKET', 
     'COMMA',
-    'EQUALS'
+    'EQUALS',
+    'DOT',
+    'SAGEGRAPH'
     )
 # Tokens
 reserved = {
    'graph' : 'GRAPH',
+   'sagegraph' : 'SAGEGRAPH',
    'bool' : 'BOOL',
    'assert' : 'ASSERT'
 }
 
+t_DOT = r'\.'
 t_AND    = r'&'
 t_OR   = r'\|'
 t_NOT   = r'!'
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 t_EQUALS  = r'='
-t_COLON = r'\:'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_COMMA = r','

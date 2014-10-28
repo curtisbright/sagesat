@@ -18,3 +18,8 @@ class Program(object):
         self.bools = { }
         self.graphs = { }
         
+    def toStr(self, indent):
+        res = "Program\n"
+        for i in self.ast:
+            res += i.toStr(1) + "\n"
+        return res
