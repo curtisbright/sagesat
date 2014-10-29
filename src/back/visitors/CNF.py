@@ -35,8 +35,12 @@ class CNF(VisitorTemplate.VisitorTemplate):
             back.visitors.Visitor.visit(self, i)
     
     def baseoperationVisit(self, baseop):
+        #TODO need to be in CNF
         args = baseop.map_vars(self.program)
-        print(baseop.op(self.solver, *args))
+        clauses = baseop.op(self.solver, *args)
+        #print(clauses)
+        self.solver.add_clauses(clauses)
+        #print(self.solver.clauses)
     
     def idVisit(self, element):
         return element

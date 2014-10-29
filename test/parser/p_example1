@@ -1,9 +1,7 @@
 bool b1
 bool b2
 #comment
-graph x(32)
-graph G(32) = [1,2,3]
-graph G2(34)
-graph G3(5) = [1,2,3,4]
-assert (b1 & b2 | b1 | b1) & matching(x,G)
+graph x(8)
+sagegraph.CubeGraph G(3)
+assert matching(x,G)
 assert matching(x,G)

@@ -28,7 +28,7 @@ class Options():
         self.GLUCOSE_LOCATION = "/home/ezulkosk/Downloads/glucose-3.0/core/glucose"
         self.SHARPSAT_LOCATION = "/home/ezulkosk/git/hamilton/bin/sharpSAT"
         
-        self.OUTPUT_DIRECTORY="/home/ezulkosk/git/hamilton/results/"
+        self.OUTPUT_DIRECTORY="/home/ezulkosk/git/sagesat/results/"
         self.DIMACS_FILE = self.OUTPUT_DIRECTORY + "dimacs"
         self.GLUCOSE_OUTPUT_FILE = self.OUTPUT_DIRECTORY + "output"
         self.PROOF_CERTIFICATE_FILE = self.OUTPUT_DIRECTORY + "proofcertificate"

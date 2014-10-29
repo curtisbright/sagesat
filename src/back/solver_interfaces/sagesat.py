@@ -21,8 +21,8 @@ class SAGE_SAT(Glucose):
             options.PROOF_CERTIFICATE_FILE + \
             " -model " + options.DIMACS_FILE + " " + options.GLUCOSE_OUTPUT_FILE
         self.options = options
-        self.vars = {}
-        self.inv_vars = {}
+        self.v2g = {}
+        self.g2v = {}
         self.clauses = []
         self.process = None
         sage.sat.solvers.Glucose.__init__(self, filename=options.DIMACS_FILE, command=self.command)
@@ -31,14 +31,15 @@ class SAGE_SAT(Glucose):
         for c in clauses:
             self.add_clause(c)
     
-    def add_vars(self, sage_entities):
+    def add_vars(self, graph, sage_entities):
+        ID = graph.ID.ID
         for i in sage_entities:
-            self.var() 
-            self.vars[self.nvars()] = i
-            self.inv_vars[i] = self.nvars()
+            new_var = self.var()
+            self.v2g[new_var] = (ID, i)
+            self.g2v[(ID, i)] = new_var
             
     def get_dimacs_for_objects(self, objects):
-        return [self.inv_vars[i] for i in objects]
+        return [self.g2v[i] for i in objects]
     
     def get_objects_in_model(self, model, objects, inverse=False):
         '''
@@ -46,9 +47,9 @@ class SAGE_SAT(Glucose):
         '''
         dimacs_vars = self.get_dimacs_for_objects(objects)
         if not inverse:
-            return [self.vars[i] for i in dimacs_vars if model[i]]
+            return [self.v2g[i] for i in dimacs_vars if model[i]]
         else:
-            return [self.vars[i] for i in dimacs_vars if not model[i]]
+            return [self.v2g[i] for i in dimacs_vars if not model[i]]
     
     def prevent_same_model_clause(self, model, _structures):
         #Adds the most basic constraint to the solver, preventing the same EXACT instance from reoccuring.
@@ -91,7 +92,7 @@ class SAGE_SAT(Glucose):
             self.process.stdin.write(c_str +"\n")
         return self.get_result()
         
-    def check(self, extra_check, structures, progress_count=None):
+    def check(self, extra_check=None, structures=None, progress_count=None):
         '''
         extra_check -- function that check some extra property of a sat solution,
         should return the tuple (bool, clauses), 
@@ -113,9 +114,12 @@ class SAGE_SAT(Glucose):
             count += 1
             if progress_count and count % progress_count == 0:
                 print(count)
-            (is_satisfied, clauses) = extra_check(self, model, structures)
-            if is_satisfied:
-                return (True, model)
-            else:
-                model = self.refine(clauses)
+            if extra_check:
+                (is_satisfied, clauses) = extra_check(self, model, structures)
+                if is_satisfied:
+                    return (True, model)
+                else:
+                    model = self.refine(clauses)
+            return (True, model)
+                
                 

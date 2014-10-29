@@ -42,35 +42,39 @@ def front(FILE):
     print(program.toStr(0))
     return (True, program)
 
-def middle(program, options):
+def middle(solver, program, options):
     try:
         checks.resolve_and_type_check(program)
     except NameNotFoundException as e:
         stderr_print(e)
         return False
     try:
-        instantiate_vars(program, options)
-    except Exception as e:
+        instantiate_vars(solver, program, options)
+    except NameNotFoundException as e:
         stderr_print(e)
         return False
     return True
   
-def back(program, options):
-    solver = sagesat.SAGE_SAT(options)
+def back(solver, program, options):
     Visitor.visit(CNF.CNF(program, solver, options), program)
+    (is_sat, model) = solver.check()
+    print(is_sat)
+    if is_sat:
+        print(model)
   
 def run(FILE):
     options = Options()
+    solver = sagesat.SAGE_SAT(options)
     (success, program) = front(FILE)
     if not success:
         return
-    success = middle(program, options)
+    success = middle(solver, program, options)
     if not success:
         return
-    success = back(program, options)
+    success = back(solver, program, options)
 
 if __name__ == '__main__':
-    for i in TESTINPUT:
+    for i in [TEST_PARSER_DIR + "p_example1"]:#TESTINPUT:
         print("==================================")
         print(i)
         print("==================================")

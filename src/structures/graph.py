@@ -7,31 +7,39 @@ Created on Oct 17, 2014
 import itertools
 
 from sage.all import *
+from sage.graphs.generators.basic import CompleteGraph
 from sage.graphs.generic_graph import GenericGraph
 
+from back.operations.eager import edge_to_vertex_axiom
 from common import common
 import sage.graphs.generators.families as F
 from structures.exceptions import GraphOrderException
 
 
-class BaseGraph(GenericGraph):
+class BaseGraph():
     
     def __init__(self, ID, order, adj_matrix, line_number):
         self.ID = ID
         self.order = order
+        self.internal_graph = CompleteGraph(self.order)
         self.adj_matrix =  adj_matrix
         self.line_number = line_number
         
-    def instantiate(self, options):
+    def instantiate(self, solver, options):
+        solver.add_vars(self, self.internal_graph.vertices())
+        solver.add_vars(self, self.internal_graph.edges(labels=False))
+        solver.add_clauses(edge_to_vertex_axiom(self, solver))
+        '''
         self._vertices = [Vertex(self.ID.ID + "$v" + str(i)) for i in range(self.order)]
         vertex_pairs = list(itertools.combinations(self._vertices, 2))
         self._edges = [Edge(self.ID.ID, v1, v2) for (v1,v2) in vertex_pairs]
+        '''
    
     def vertices(self):
-        return self._vertices
+        return self.internal_graph.vertices()
     
     def edges(self):
-        return self._edges
+        return self.internal_graph.edges()
     
     def __str__(self):
         return "graph " + self.ID.ID + "(" + str(self.order) + ":" + str(self.adj_matrix) + ")"
@@ -46,20 +54,20 @@ class BaseGraph(GenericGraph):
 class SageGraph():
     
     def __init__(self, graph_type, ID, args, line_number):
-        self.graph_type = graph_type
+        self.graph_type = graph_type.ID
         self.ID = ID
         self.args = args
         self.line_number = line_number
         self.internal_graph = None
         
-    def instantiate(self, options):
+    def instantiate(self, solver, options):
         self.internal_graph = F.CubeGraph(self.args)
         #reflection using the graph_type
         attr = getattr(F, self.graph_type)
         self.internal_graph = attr(self.args)
         
     def __str__(self):
-        return self.graph_type + " " + self.ID + "(" + str(self.args) + ")"
+        return self.graph_type + " " + self.ID.ID + "(" + str(self.args) + ")"
     
     def __repr__(self):
         return self.__str__()
