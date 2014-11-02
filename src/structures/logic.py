@@ -28,6 +28,16 @@ class Bool():
         
     def toStr(self, indent):
         return common.INDENT * indent + self.__str__()
+    
+class BoolConst():
+    def __init__(self, val):
+        self.val = val
+    
+    def __str__(self):
+        return str(self.val)
+        
+    def toStr(self, indent):
+        return common.INDENT * indent + self.__str__()
         
 class Assert():
     def __init__(self, expr, line_number):

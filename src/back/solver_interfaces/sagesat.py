@@ -11,7 +11,7 @@ from sage.all import *
 from sage.sat.solvers import Glucose
 
 from common import common
-
+from structures.logic import BoolConst
 
 
 class SAGE_SAT(Glucose): 
@@ -21,8 +21,8 @@ class SAGE_SAT(Glucose):
             options.PROOF_CERTIFICATE_FILE + \
             " -model " + options.DIMACS_FILE + " " + options.GLUCOSE_OUTPUT_FILE
         self.options = options
-        self.v2g = {}
-        self.g2v = {}
+        self._v2g = {}
+        self._g2v = {}
         self.clauses = []
         self.process = None
         sage.sat.solvers.Glucose.__init__(self, filename=options.DIMACS_FILE, command=self.command)
@@ -35,9 +35,51 @@ class SAGE_SAT(Glucose):
         ID = graph.ID.ID
         for i in sage_entities:
             new_var = self.var()
-            self.v2g[new_var] = (ID, i)
-            self.g2v[(ID, i)] = new_var
-            
+            self._v2g[new_var] = (ID, i)
+            self._g2v[(ID, i)] = new_var
+    
+    
+    def add_clause(self, c):
+        l = []
+        for i in c:
+            if isinstance(i, BoolConst):
+                if i.val:
+                    return
+            else:
+                l.append(i)
+        tup = tuple(l)
+        return super(SAGE_SAT, self).add_clause(tup)
+    
+    def v2g(self, graph, entity):
+        return self._v2g[(graph.ID.ID, entity)]
+    
+    
+    def on(self, graph, entity):
+        #replaces g2v
+        #returns the dimacs variable associated with the graph entity (edge or vertex),
+        #If the graph is a sagegraph, returns True or False
+        try:
+            b = self._g2v[(graph.ID.ID, entity)] 
+        except:
+            #sage graph case
+            if entity in graph.internal_graph.vertices() or entity in graph.internal_graph.edges(labels=False):
+                return BoolConst(True)
+            else:
+                return BoolConst(False)
+        return b  
+    
+    def off(self, graph, entity):
+        #negation of on
+        val_temp = self.on(graph, entity)
+        try:
+            val = -val_temp
+        except:
+            if val_temp:
+                val = BoolConst(False)
+            else:
+                val = BoolConst(True)
+        return val
+        
     def get_dimacs_for_objects(self, objects):
         return [self.g2v[i] for i in objects]
     

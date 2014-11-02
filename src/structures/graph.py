@@ -59,12 +59,34 @@ class SageGraph():
         self.args = args
         self.line_number = line_number
         self.internal_graph = None
+    
+    
+    def rename_components(self, g):
+        '''
+        Certain constructors for graph families (e.g. CubeGraph) give different names to vertices.
+        This remaps them from 0 - |V|.
+        '''
+        assert isinstance(g, Graph)
+        num_vertices = g.num_verts()
+        new_g = Graph()
+        new_g.add_vertices(range(num_vertices))
+        vmap = {}
+        count = 0
+        for i in g.vertices():
+            vmap[i] = count
+            count += 1
+        for i in g.edges(labels=False):
+            new_g.add_edge(vmap[i[0]], vmap[i[1]])
+        return new_g
+            
         
     def instantiate(self, solver, options):
+        #TODO cache.
         self.internal_graph = F.CubeGraph(self.args)
         #reflection using the graph_type
         attr = getattr(F, self.graph_type)
-        self.internal_graph = attr(self.args)
+        temp_graph = attr(self.args)
+        self.internal_graph = self.rename_components(temp_graph)
         
     def __str__(self):
         return self.graph_type + " " + self.ID.ID + "(" + str(self.args) + ")"

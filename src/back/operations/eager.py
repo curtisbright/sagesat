@@ -12,8 +12,8 @@ import sys
 # Axioms #
 ##########
 def edge_to_vertex_axiom(graph, solver):
-    edge_vertex_clause_sets = [[(-solver.g2v[(graph.ID.ID, (v1,v2))], solver.g2v[graph.ID.ID,v1]),
-                            (-solver.g2v[(graph.ID.ID,(v1,v2))], solver.g2v[graph.ID.ID,v2])] for (v1, v2) in graph.internal_graph.edges(labels=False)]
+    edge_vertex_clause_sets = [[(solver.off(graph, (v1,v2)), solver.on(graph,v1)),
+                            (solver.off(graph,(v1,v2)), solver.on(graph,v2))] for (v1, v2) in graph.internal_graph.edges(labels=False)]
     return [c for cs in edge_vertex_clause_sets for c in cs]
     
 ##############
@@ -21,27 +21,37 @@ def edge_to_vertex_axiom(graph, solver):
 ##############
 
 def subgraph(solver, x, G):
-    print(x.internal_graph.vertices())
-    print(G.internal_graph.vertices())
-    sys.exit()
-    return []
+    #the set of vertices and edges in x is a subset of that in G.
+    #currently assume that all graphs have the same possible order.
+    assert(x.internal_graph.order() == G.internal_graph.order())
+    clauses = []
+    #x.vertex => G.vertex & x.edge => G.edge
+    # <=> (CNF)
+    #!x.vertex v G.vertex & ...
+    for i in x.internal_graph.vertices():
+        clauses.append((solver.off(x, i), solver.on(G, i)))
+    return clauses
 
 def matching(solver, x, G):
-    #TODO Need to ensure subgraph!!!
     #XXX: Currently the matching contains edges and vertices -- probably it should only be the set of edges?
     #edge restriction -- no two incident edges can both be on
-    incidence_list = [G.internal_graph.edges_incident(v, labels=False) for v in G.internal_graph.vertices()]
+    #G.e1 & G.e2 => !x.e1 v !x.e2 (where e1 and e2 are incident)
+    # <=>
+    #!G.e1 v !G.e2 v !x.e1 v !x.e2  
     clauses = subgraph(solver, x, G)
+    incidence_list = [G.internal_graph.edges_incident(v, labels=False) for v in G.internal_graph.vertices()]
     for inc_edges in incidence_list:
         for i in range(len(inc_edges)):
             for j in range(i+1, len(inc_edges)):
-                clauses.append((-solver.g2v[(x.ID.ID, inc_edges[i])], -solver.g2v[(x.ID.ID, inc_edges[j])]))
+                clauses.append((solver.off(G, inc_edges[i]), solver.off(G, inc_edges[j]), solver.off(x, inc_edges[i]), solver.off(x, inc_edges[j])))
+    #since we are returning a graph instead of a set, only include vertices that are actually matched
     #v => some incident edge <==> !v or some incident edge 
-    clauses += [tuple([-solver.g2v[(x.ID.ID, v)]] + [solver.g2v[(x.ID.ID, e)] for e in G.internal_graph.edges_incident(v, labels=None)]) for v in G.vertices()]
+    clauses += [tuple([solver.off(x, v)] + [solver.on(x, e) for e in G.internal_graph.edges_incident(v, labels=None)]) for v in G.internal_graph.vertices()]
     return clauses
 
-def isolated_vertex(solver, graph, vertex):
-    return [(-solver.g2v[e],) for e in graph.edges_incident(vertex, labels=False)]
+def imperfect_matching(solver, x, v, G):
+    #ensures that the vertex v cannot be in the matching
+    return [(solver.off(x, e),) for e in G.internal_graph.edges_incident(v, labels=False)]
 
-def maximal_matching(solver, graph):
-    return [(solver.g2v[v1], solver.inv_vars[v2]) for (v1,v2) in graph.edges(labels=False)]
+def maximal_matching(solver, x, G):
+    return [(solver.off(G, (v1,v2)), solver.on(x, v1), solver.on(x, v2)) for (v1,v2) in G.internal_graph.edges(labels=False)]
