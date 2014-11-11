@@ -24,6 +24,9 @@ class Bool():
         self.ID = ID
         self.line_number = line_number
     
+    def instantiate(self, solver, options):
+        solver.add_bool(self)
+    
     def __str__(self):
         return "bool " + self.ID.ID
         

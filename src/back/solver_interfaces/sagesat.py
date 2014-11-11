@@ -16,7 +16,6 @@ from structures.logic import BoolConst
 
 class SAGE_SAT(Glucose):
     def __init__(self, options):
-        print("WARNING: Need to enable no-elim!")
         self.command=options.GLUCOSE_LOCATION + " -verb=0 -certified -certified-output=" + \
             options.PROOF_CERTIFICATE_FILE + \
             " -model " + options.DIMACS_FILE + " " + options.GLUCOSE_OUTPUT_FILE
@@ -40,6 +39,11 @@ class SAGE_SAT(Glucose):
             new_var = self.var()
             self._v2g[new_var] = (ID, i)
             self._g2v[(ID, i)] = new_var
+    
+    def add_bool(self, b):
+        new_var = self.var()
+        self._v2g[new_var] = b
+        self._g2v[b] = new_var
     
     def add_clause(self, c):
         l = []
@@ -98,6 +102,12 @@ class SAGE_SAT(Glucose):
     def get_dimacs_for_objects(self, graph, objects):
         return [self._g2v[(graph.ID.ID,i)] for i in objects]
     
+    def get_dimacs_for_bool(self, b):
+        try:
+            return self._g2v[b]
+        except:
+            return None
+    
     def get_objects_in_model(self, model, graph, objects, inverse=False):
         '''
         returns the objects that are set to true by the SAT solver
@@ -117,10 +127,13 @@ class SAGE_SAT(Glucose):
         return (False, [clause])
     
     def get_result(self):
+        
         try:
             model = self.process.stdout.readline()
             s = map(int, model.strip().split(" "))
             s = (None,) + tuple(e>0 for e in s)
+            #TODO get rid of this
+            self.refine([])
             return list(s)
         except:
             return None
@@ -141,13 +154,25 @@ class SAGE_SAT(Glucose):
         return self.get_result()
     
     def refine(self, clauses):
-        #TODO fix sage to handle multiple clauses
+        #print(len(clauses))
+        for c in clauses:
+            #add clause to output final dimacs file
+            self.add_clause(c)
+            c_str = " ".join([str(i) for i in c])
+            #print(c_str)
+            self.process.stdin.write(c_str +"\n")
+        #alert glucose that there are no more clauses
+        self.process.stdin.write("0\n")
+        return self.get_result()
+        '''
+        #OLD fix sage to handle multiple clauses
         for c in clauses:
             #add clause to output final dimacs file
             self.add_clause(c)
             c_str = " ".join([str(i) for i in c])
             self.process.stdin.write(c_str +"\n")
         return self.get_result()
+        '''
         
     def check(self, extra_check=None, structures=None, progress_count=None):
         '''

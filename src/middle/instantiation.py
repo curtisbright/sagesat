@@ -8,3 +8,5 @@ def instantiate_vars(solver, program, options):
     #bools do not need further instantiation
     for g in program.graphs.values():
         g.instantiate(solver, options)
+    for b in program.bools.values():
+        b.instantiate(solver, options)

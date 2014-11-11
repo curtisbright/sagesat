@@ -79,7 +79,7 @@ def create_graph_from_model(solver, model, graph, low, high):
     g.add_edges([i for (_,i) in on_edges])
     return g
 
-def display_results(solver, is_sat, model):
+def display_results(solver, program, is_sat, model):
     if not is_sat:
         print("UNSAT")
         return
@@ -95,6 +95,12 @@ def display_results(solver, is_sat, model):
             p = g.plot()
             p.show()
             sleep(5)
+    for i in program.bools.values():
+        try:
+            res = i.ID.ID + ": " + str(model[solver.get_dimacs_for_bool(i)])
+            print(res)
+        except:
+            print("UNCONSTRAINED BOOL: RESULTS MAY NOT MATCH!")
   
 def run(FILE):
     options = Options()
@@ -106,7 +112,7 @@ def run(FILE):
     if not success:
         return
     (is_sat, model) = back(solver, program, options)
-    display_results(solver, is_sat, model)
+    display_results(solver, program, is_sat, model)
 
 if __name__ == '__main__':
     print("TODO:")
