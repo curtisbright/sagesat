@@ -6,8 +6,8 @@ Created on Oct 17, 2014
 
 import sys
 
-import back.operations.eager
-import back.operations.lazy
+import back.operations.blasted_ops
+import back.operations.sage_ops
 from structures.exceptions import OperationNotSupportedException
 from structures.logic import ID
 
@@ -19,10 +19,10 @@ class BaseOperation():
         self.line_number = line_number
         #reflection using the op name
         try:
-            attr = getattr(back.operations.lazy, self.ID)
+            attr = getattr(back.operations.sage_ops, self.ID)
         except:
             try:
-                attr = getattr(back.operations.eager, self.ID)
+                attr = getattr(back.operations.blasted_ops, self.ID)
             except:
                 raise OperationNotSupportedException(self.ID, self.line_number)
         self.op = attr

@@ -7,6 +7,7 @@ from common import common
 
 
 class Op():
+    ''' and, or, not '''
     def __init__(self, name, args, line_number):
         self.ID = name
         self.args = args

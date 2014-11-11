@@ -1,3 +1,10 @@
-graph x(32)
-sagegraph.CubeGraph G(5)
-assert matching(x,G) & imperfect(x,G)
+#bool b1
+#bool b2
+#bool b3
+graph x(8)
+sagegraph.CubeGraph G(3)
+assert matching(x,G)
+assert maximal_matching(x,G)
+assert imperfect_matching(x, 0, G)
+assert b1 & b2 | b3 | b2 | !b1
+#assert !extends_to_hamiltonian(x,G)

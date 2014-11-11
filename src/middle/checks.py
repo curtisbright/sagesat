@@ -40,7 +40,7 @@ def resolve_expr(program, expr):
         elif expr.ID == "or":
             return resolve_or(program,expr.args[0], expr.args[1])
         elif expr.ID == "not":
-            return resolve_not(program, expr.args[1])
+            return resolve_not(program, expr.args[0])
         else:
             #defined operation
             return resolve_operation(program, expr)

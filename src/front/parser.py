@@ -44,7 +44,7 @@ def p_boolvardecl(t):
 def p_graphvardecl(t):
     '''
     graphvardecl : GRAPH idprod LPAREN NUMBER RPAREN graphdef
-                 | SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN 
+                 | SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN 
     '''
     if t[1] == "graph":
         t[0] = [BaseGraph(t[2], t[4], t[6], t.lexer.lineno)]
@@ -108,7 +108,7 @@ def p_expression(t):
         if t[2] == '|'  : t[0] = logic.Op(Keyword("or", t.lexer.lineno), [t[1], t[3]], t.lexer.lineno)
         elif t[2] == '&': t[0] = logic.Op(Keyword("and", t.lexer.lineno), [t[1], t[3]], t.lexer.lineno)
     elif len(t) == 3:
-        t[0] = logic.Op('not', t[2], t.lexer.lineno)
+        t[0] = logic.Op(Keyword("not", t.lexer.lineno), [t[2]], t.lexer.lineno)
     else:
         t[0] = t[1]
     

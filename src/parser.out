@@ -11,7 +11,7 @@ Rule 5     vardecl -> boolvardecl
 Rule 6     vardecl -> graphvardecl
 Rule 7     boolvardecl -> BOOL idprod
 Rule 8     graphvardecl -> GRAPH idprod LPAREN NUMBER RPAREN graphdef
-Rule 9     graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN
+Rule 9     graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN
 Rule 10    graphdef -> EQUALS LBRACKET exprlist RBRACKET
 Rule 11    graphdef -> empty
 Rule 12    exprlist -> expr nonemptylist
@@ -43,7 +43,7 @@ ID                   : 25
 LBRACKET             : 10
 LPAREN               : 8 9 17 24
 NOT                  : 20
-NUMBER               : 8 9 23
+NUMBER               : 8 23
 OR                   : 19
 RBRACKET             : 10
 RPAREN               : 8 9 17 24
@@ -56,7 +56,7 @@ assertdecl           : 2 4
 boolvardecl          : 5
 empty                : 11 13 15
 expr                 : 12 14 16 18 18 19 19 20 24
-exprlist             : 10 17
+exprlist             : 9 10 17
 graphdef             : 8
 graphvardecl         : 6
 idprod               : 7 8 9 9 17 22
@@ -79,7 +79,7 @@ state 0
     (16) assertdecl -> . ASSERT expr
     (7) boolvardecl -> . BOOL idprod
     (8) graphvardecl -> . GRAPH idprod LPAREN NUMBER RPAREN graphdef
-    (9) graphvardecl -> . SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN
+    (9) graphvardecl -> . SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN
 
     ASSERT          shift and go to state 1
     BOOL            shift and go to state 7
@@ -146,7 +146,7 @@ state 4
     (16) assertdecl -> . ASSERT expr
     (7) boolvardecl -> . BOOL idprod
     (8) graphvardecl -> . GRAPH idprod LPAREN NUMBER RPAREN graphdef
-    (9) graphvardecl -> . SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN
+    (9) graphvardecl -> . SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN
 
     ASSERT          shift and go to state 1
     BOOL            shift and go to state 7
@@ -200,7 +200,7 @@ state 8
 
 state 9
 
-    (9) graphvardecl -> SAGEGRAPH . DOT idprod idprod LPAREN NUMBER RPAREN
+    (9) graphvardecl -> SAGEGRAPH . DOT idprod idprod LPAREN exprlist RPAREN
 
     DOT             shift and go to state 21
 
@@ -374,7 +374,7 @@ state 20
 
 state 21
 
-    (9) graphvardecl -> SAGEGRAPH DOT . idprod idprod LPAREN NUMBER RPAREN
+    (9) graphvardecl -> SAGEGRAPH DOT . idprod idprod LPAREN exprlist RPAREN
     (25) idprod -> . ID
 
     ID              shift and go to state 16
@@ -496,7 +496,7 @@ state 27
 
 state 28
 
-    (9) graphvardecl -> SAGEGRAPH DOT idprod . idprod LPAREN NUMBER RPAREN
+    (9) graphvardecl -> SAGEGRAPH DOT idprod . idprod LPAREN exprlist RPAREN
     (25) idprod -> . ID
 
     ID              shift and go to state 16
@@ -603,7 +603,7 @@ state 35
 
 state 36
 
-    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod . LPAREN NUMBER RPAREN
+    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod . LPAREN exprlist RPAREN
 
     LPAREN          shift and go to state 42
 
@@ -681,10 +681,31 @@ state 41
 
 state 42
 
-    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN . NUMBER RPAREN
+    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN . exprlist RPAREN
+    (12) exprlist -> . expr nonemptylist
+    (13) exprlist -> . empty
+    (18) expr -> . expr AND expr
+    (19) expr -> . expr OR expr
+    (20) expr -> . NOT expr
+    (21) expr -> . operation
+    (22) expr -> . idprod
+    (23) expr -> . NUMBER
+    (24) expr -> . LPAREN expr RPAREN
+    (26) empty -> .
+    (17) operation -> . idprod LPAREN exprlist RPAREN
+    (25) idprod -> . ID
 
-    NUMBER          shift and go to state 47
+    NOT             shift and go to state 14
+    NUMBER          shift and go to state 11
+    LPAREN          shift and go to state 13
+    RPAREN          reduce using rule 26 (empty -> .)
+    ID              shift and go to state 16
 
+    expr                           shift and go to state 31
+    idprod                         shift and go to state 12
+    operation                      shift and go to state 15
+    exprlist                       shift and go to state 47
+    empty                          shift and go to state 33
 
 state 43
 
@@ -735,7 +756,7 @@ state 46
 
 state 47
 
-    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER . RPAREN
+    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist . RPAREN
 
     RPAREN          shift and go to state 50
 
@@ -778,13 +799,13 @@ state 49
 
 state 50
 
-    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN .
+    (9) graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN .
 
-    ASSERT          reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN .)
-    BOOL            reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN .)
-    GRAPH           reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN .)
-    SAGEGRAPH       reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN .)
-    $end            reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN NUMBER RPAREN .)
+    ASSERT          reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN .)
+    BOOL            reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN .)
+    GRAPH           reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN .)
+    SAGEGRAPH       reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN .)
+    $end            reduce using rule 9 (graphvardecl -> SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN .)
 
 
 state 51

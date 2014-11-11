@@ -35,3 +35,30 @@ def visit(visitor, element):
     else:
         print("Error in visitor: " + str(element))
     
+def retvisit(visitor, element):
+    '''
+    Method used to determine which visit method to call, based on the type of element.
+    
+    :param element: A Clafer AST node.
+    :type element: ast.* 
+    
+    *see* :doc:`ast`
+    '''
+    if isinstance(element, structures.program.Program):
+        return visitor.programVisit(element)
+    elif isinstance(element, structures.logic.Bool):
+        return visitor.boolVisit(element)
+    elif isinstance(element, structures.graph.BaseGraph):
+        return visitor.basegraphVisit(element)
+    elif isinstance(element, structures.graph.SageGraph):
+        return visitor.sagegraphVisit(element)
+    elif isinstance(element, structures.logic.Assert):
+        return visitor.assertVisit(element)
+    elif isinstance(element, structures.logic.Op):
+        return visitor.opVisit(element)
+    elif isinstance(element, structures.operation.BaseOperation):
+        return visitor.baseoperationVisit(element)
+    elif isinstance(element, ID):
+        return visitor.idVisit(element)
+    else:
+        print("Error in visitor: " + str(element))

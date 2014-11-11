@@ -10,9 +10,10 @@ from sage.all import *
 from sage.graphs.generators.basic import CompleteGraph
 from sage.graphs.generic_graph import GenericGraph
 
-from back.operations.eager import edge_to_vertex_axiom
+from back.operations.blasted_ops import edge_to_vertex_axiom
 from common import common
 import sage.graphs.generators.families as F
+import sage.graphs.generators.smallgraphs as C
 from structures.exceptions import GraphOrderException
 
 
@@ -26,14 +27,12 @@ class BaseGraph():
         self.line_number = line_number
         
     def instantiate(self, solver, options):
+        prev_vars = solver.nvars()
         solver.add_vars(self, self.internal_graph.vertices())
         solver.add_vars(self, self.internal_graph.edges(labels=False))
         solver.add_clauses(edge_to_vertex_axiom(self, solver))
-        '''
-        self._vertices = [Vertex(self.ID.ID + "$v" + str(i)) for i in range(self.order)]
-        vertex_pairs = list(itertools.combinations(self._vertices, 2))
-        self._edges = [Edge(self.ID.ID, v1, v2) for (v1,v2) in vertex_pairs]
-        '''
+        curr_vars = solver.nvars()
+        solver.graph_vars.append((self, prev_vars+1, curr_vars))
    
     def vertices(self):
         return self.internal_graph.vertices()
@@ -42,7 +41,7 @@ class BaseGraph():
         return self.internal_graph.edges()
     
     def __str__(self):
-        return "graph " + self.ID.ID + "(" + str(self.order) + ":" + str(self.adj_matrix) + ")"
+        return "graph " + self.ID.ID + "(" + str(self.order) + (":" + str(self.adj_matrix) if self.adj_matrix else "") + ")"
     
     def __repr__(self):
         return self.__str__()
@@ -56,7 +55,11 @@ class SageGraph():
     def __init__(self, graph_type, ID, args, line_number):
         self.graph_type = graph_type.ID
         self.ID = ID
-        self.args = args
+        if args == [None]:
+            self.args = None
+        else:
+            self.args = args
+        
         self.line_number = line_number
         self.internal_graph = None
     
@@ -66,6 +69,7 @@ class SageGraph():
         Certain constructors for graph families (e.g. CubeGraph) give different names to vertices.
         This remaps them from 0 - |V|.
         '''
+        #TODO remove, obsolete by relabel
         assert isinstance(g, Graph)
         num_vertices = g.num_verts()
         new_g = Graph()
@@ -79,14 +83,22 @@ class SageGraph():
             new_g.add_edge(vmap[i[0]], vmap[i[1]])
         return new_g
             
-        
     def instantiate(self, solver, options):
         #TODO cache.
-        self.internal_graph = F.CubeGraph(self.args)
         #reflection using the graph_type
-        attr = getattr(F, self.graph_type)
-        temp_graph = attr(self.args)
-        self.internal_graph = self.rename_components(temp_graph)
+        try:
+            attr = getattr(F, self.graph_type)
+        except:
+            try:
+                attr = getattr(C, self.graph_type)
+            except:
+                raise Exception()
+        if self.args:
+            self.internal_graph = attr(*self.args)
+        else:
+            self.internal_graph = attr()
+        self.internal_graph.relabel()#range(temp_graph.num_verts()))
+        
         
     def __str__(self):
         return self.graph_type + " " + self.ID.ID + "(" + str(self.args) + ")"

@@ -14,7 +14,7 @@ from common import common
 from structures.logic import BoolConst
 
 
-class SAGE_SAT(Glucose): 
+class SAGE_SAT(Glucose):
     def __init__(self, options):
         print("WARNING: Need to enable no-elim!")
         self.command=options.GLUCOSE_LOCATION + " -verb=0 -certified -certified-output=" + \
@@ -23,6 +23,9 @@ class SAGE_SAT(Glucose):
         self.options = options
         self._v2g = {}
         self._g2v = {}
+        self._t2b = {}
+        self._b2t = {}
+        self.graph_vars = []
         self.clauses = []
         self.process = None
         sage.sat.solvers.Glucose.__init__(self, filename=options.DIMACS_FILE, command=self.command)
@@ -38,7 +41,6 @@ class SAGE_SAT(Glucose):
             self._v2g[new_var] = (ID, i)
             self._g2v[(ID, i)] = new_var
     
-    
     def add_clause(self, c):
         l = []
         for i in c:
@@ -50,8 +52,21 @@ class SAGE_SAT(Glucose):
         tup = tuple(l)
         return super(SAGE_SAT, self).add_clause(tup)
     
-    def v2g(self, graph, entity):
-        return self._v2g[(graph.ID.ID, entity)]
+    def t2b(self, op):
+        '''
+        Maps the tuple of an op + args to a boolean variable.
+        Creates a new variable if necessary.
+        Returns the dimacs variable
+        '''
+        sig = (op.ID, tuple(op.args))
+        d = self._t2b.get(sig)
+        if d:
+            return d
+        else:
+            new_var = self.var()
+            self._t2b[(op.ID, tuple(op.args))] = new_var
+            self._b2t[new_var] = (op.ID, op.args)
+            return new_var
     
     
     def on(self, graph, entity):
@@ -80,18 +95,18 @@ class SAGE_SAT(Glucose):
                 val = BoolConst(True)
         return val
         
-    def get_dimacs_for_objects(self, objects):
-        return [self.g2v[i] for i in objects]
+    def get_dimacs_for_objects(self, graph, objects):
+        return [self._g2v[(graph.ID.ID,i)] for i in objects]
     
-    def get_objects_in_model(self, model, objects, inverse=False):
+    def get_objects_in_model(self, model, graph, objects, inverse=False):
         '''
         returns the objects that are set to true by the SAT solver
         '''
-        dimacs_vars = self.get_dimacs_for_objects(objects)
+        dimacs_vars = self.get_dimacs_for_objects(graph, objects)
         if not inverse:
-            return [self.v2g[i] for i in dimacs_vars if model[i]]
+            return [self._v2g[i] for i in dimacs_vars if model[i]]
         else:
-            return [self.v2g[i] for i in dimacs_vars if not model[i]]
+            return [self._v2g[i] for i in dimacs_vars if not model[i]]
     
     def prevent_same_model_clause(self, model, _structures):
         #Adds the most basic constraint to the solver, preventing the same EXACT instance from reoccuring.
