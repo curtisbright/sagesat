@@ -58,6 +58,8 @@ class subgraph(Eager):
         #!x.vertex v G.vertex & ...
         for i in x.internal_graph.vertices():
             clauses.append((solver.off(x, i), solver.on(G, i)))
+        for i in x.internal_graph.edges(labels=False):
+            clauses.append((solver.off(x, i), solver.on(G, i)))
         return clauses
     
     

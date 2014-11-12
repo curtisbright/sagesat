@@ -38,7 +38,10 @@ class BoolConst():
         self.val = val
     
     def __str__(self):
-        return str(self.val)
+        return "B" + str(self.val)
+    
+    def __repr__(self):
+        return self.__str__()
         
     def toStr(self, indent):
         return common.INDENT * indent + self.__str__()

@@ -125,6 +125,7 @@ class DumpBooleanAbstraction(VisitorTemplate.ReturnVisitorTemplate):
             res = []
             blasted = baseop.op.apply(self.solver, *baseop.args)
             #print(blasted)
+            
             flag = False
             for arg in blasted:
                 subres = []
@@ -143,7 +144,6 @@ class DumpBooleanAbstraction(VisitorTemplate.ReturnVisitorTemplate):
                     flag = False
                     continue
                 res.append(z3.Or(subres))
-            #print(res)
             return z3.And(res)
     
     def idVisit(self, element):

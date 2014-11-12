@@ -75,13 +75,13 @@ def create_graph_from_model(solver, model, graph, low, high):
     g = Graph()
     on_vertices = solver.get_objects_in_model(model, graph, graph.internal_graph.vertices())
     on_edges = solver.get_objects_in_model(model, graph, graph.internal_graph.edges(labels=False))
-    g.add_vertices([i for (_,i) in on_vertices])
-    g.add_edges([i for (_,i) in on_edges])
+    g.add_vertices(on_vertices)
+    g.add_edges(on_edges)
     return g
 
 def display_results(solver, program, is_sat, model):
     if not is_sat:
-        print("UNSAT")
+        print("UNSAT " + str(model))
         return
     print("SAT")
     for (graph, low, high) in solver.graph_vars:
@@ -95,12 +95,16 @@ def display_results(solver, program, is_sat, model):
             p = g.plot()
             p.show()
             sleep(5)
-    for i in program.bools.values():
-        try:
-            res = i.ID.ID + ": " + str(model[solver.get_dimacs_for_bool(i)])
-            print(res)
-        except:
-            print("UNCONSTRAINED BOOL: RESULTS MAY NOT MATCH!")
+    if program.bools.values():
+        print("\nBools: ")
+        for i in program.bools.values():
+            try:
+                if model[solver.get_dimacs_for_bool(i)]:
+                    print(i.ID.ID)
+                else:
+                    print("!" + i.ID.ID)
+            except:
+                print("UNCONSTRAINED BOOL: RESULTS MAY NOT MATCH!")
   
 def run(FILE):
     options = Options()

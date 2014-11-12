@@ -68,10 +68,12 @@ class SAGE_SAT(Glucose):
             return d
         else:
             new_var = self.var()
-            self._t2b[(op.ID, tuple(op.args))] = new_var
-            self._b2t[new_var] = (op.ID, op.args)
+            self._t2b[(op, tuple(op.args))] = new_var
+            self._b2t[new_var] = (op, op.args)
             return new_var
     
+    def b2t(self, v):
+        return self._b2t[v]
     
     def on(self, graph, entity):
         #replaces g2v
@@ -114,26 +116,24 @@ class SAGE_SAT(Glucose):
         '''
         dimacs_vars = self.get_dimacs_for_objects(graph, objects)
         if not inverse:
-            return [self._v2g[i] for i in dimacs_vars if model[i]]
+            l = [self._v2g[i] for i in dimacs_vars if model[i]]
         else:
-            return [self._v2g[i] for i in dimacs_vars if not model[i]]
-    
+            l = [self._v2g[i] for i in dimacs_vars if not model[i]]
+        return [i for (_, i) in l]
+            
     def prevent_same_model_clause(self, model, _structures):
         #Adds the most basic constraint to the solver, preventing the same EXACT instance from reoccuring.
         clause = []
         for i in range(1, len(model)):
             if model[i]:
                 clause.append(-(i))
-        return (False, [clause])
+        return [clause]
     
     def get_result(self):
-        
         try:
             model = self.process.stdout.readline()
             s = map(int, model.strip().split(" "))
             s = (None,) + tuple(e>0 for e in s)
-            #TODO get rid of this
-            self.refine([])
             return list(s)
         except:
             return None
@@ -174,7 +174,7 @@ class SAGE_SAT(Glucose):
         return self.get_result()
         '''
         
-    def check(self, extra_check=None, structures=None, progress_count=None):
+    def check(self, progress_count=None):
         '''
         extra_check -- function that check some extra property of a sat solution,
         should return the tuple (bool, clauses), 
@@ -196,6 +196,29 @@ class SAGE_SAT(Glucose):
             count += 1
             if progress_count and count % progress_count == 0:
                 print(count)
+            sat = True
+            for i in self._b2t.keys():
+                #TODO t2b needs to be fixed for recursive
+                #TODO should convert result to cnf, currently overkill
+                (baseop, args) = self.b2t(i)
+                (is_satisfied, clauses) = baseop.op.apply(self, model, args)
+                if is_satisfied == model[i]:
+                    continue
+                else:
+                    sat = False
+                    #TODO Unhack for False, true case
+                    for j in clauses:
+                        j.append(i)
+                    model = self.refine(clauses)
+                    #TODO find all props first
+                    break
+            if sat:
+                #SAT -- kill glucose
+                self.write(self.options.DIMACS_FILE)
+                self.refine([])    
+                return (True, model)
+            '''    
+            sys.exit()
             if extra_check:
                 (is_satisfied, clauses) = extra_check(self, model, structures)
                 if is_satisfied:
@@ -203,5 +226,5 @@ class SAGE_SAT(Glucose):
                 else:
                     model = self.refine(clauses)
             return (True, model)
-                
+            '''    
                 
