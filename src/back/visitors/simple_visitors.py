@@ -40,7 +40,7 @@ class T2B(VisitorTemplate.VisitorTemplate):
         self.solver = solver
 
     def baseoperationVisit(self, baseop):
-        if isinstance(baseop.op, Lazy):
+        if issubclass(baseop.op, Lazy):
             baseop.dimacs_var = self.solver.t2b(baseop)
     
         
@@ -118,8 +118,8 @@ class DumpBooleanAbstraction(VisitorTemplate.ReturnVisitorTemplate):
     
     def baseoperationVisit(self, baseop):
         #TODO should go deeper.
-        if isinstance(baseop.op, Lazy):
-            return z3.Bool(baseop.dimacs_var)
+        if issubclass(baseop.op, Lazy):
+            return z3.Bool("bool!" + str(baseop.dimacs_var))
         else:
             #print(baseop.args)
             res = []
