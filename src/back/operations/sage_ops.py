@@ -5,7 +5,10 @@ Created on Oct 14, 2014
 '''
 import sys
 
+from sage.categories.sets_cat import EmptySetError
+
 from back.operations.blasted_ops import Lazy
+
 
 class extends_to_hamiltonian(Lazy):
     
@@ -24,7 +27,10 @@ class extends_to_hamiltonian(Lazy):
                 G.internal_graph.set_edge_label(v1,v2,1) 
             else:
                 G.internal_graph.set_edge_label(v1,v2,2)
-        cycle_through_matching = G.internal_graph.traveling_salesman_problem(use_edge_labels=True)
+        try:
+            cycle_through_matching = G.internal_graph.traveling_salesman_problem(use_edge_labels=True)
+        except EmptySetError:
+            return (False, [[]])
         
         #Get total weight of cycle
         #We can find a Hamiltonian cycle through the matching by converting to a TSP Problem, 
@@ -39,7 +45,8 @@ class extends_to_hamiltonian(Lazy):
             #return (True, solver.prevent_same_model_clause(model, []))
         else:
             #doesnt extend ... print("Counterexample!")
-            return (False, model)
+            #TODO change name of create_ham...v
+            return (False, create_hamiltonian_cycle_clause(solver, model, x, matching.edges(labels=None)))
         
         
 def create_hamiltonian_cycle_clause(solver, model, x, cycle_edges):
@@ -50,6 +57,8 @@ def create_hamiltonian_cycle_clause(solver, model, x, cycle_edges):
     #print("hamclause")
     #print(clause)
     return [clause]
+
+
     
     
     

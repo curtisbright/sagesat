@@ -470,8 +470,8 @@ state 26
     (18) expr -> expr . AND expr
     (19) expr -> expr . OR expr
 
-  ! shift/reduce conflict for AND resolved as shift
-  ! shift/reduce conflict for OR resolved as shift
+    AND             reduce using rule 20 (expr -> NOT expr .)
+    OR              reduce using rule 20 (expr -> NOT expr .)
     COMMA           reduce using rule 20 (expr -> NOT expr .)
     RPAREN          reduce using rule 20 (expr -> NOT expr .)
     RBRACKET        reduce using rule 20 (expr -> NOT expr .)
@@ -480,11 +480,9 @@ state 26
     GRAPH           reduce using rule 20 (expr -> NOT expr .)
     SAGEGRAPH       reduce using rule 20 (expr -> NOT expr .)
     $end            reduce using rule 20 (expr -> NOT expr .)
-    AND             shift and go to state 22
-    OR              shift and go to state 23
 
-  ! AND             [ reduce using rule 20 (expr -> NOT expr .) ]
-  ! OR              [ reduce using rule 20 (expr -> NOT expr .) ]
+  ! AND             [ shift and go to state 22 ]
+  ! OR              [ shift and go to state 23 ]
 
 
 state 27
@@ -825,8 +823,3 @@ state 52
     SAGEGRAPH       reduce using rule 10 (graphdef -> EQUALS LBRACKET exprlist RBRACKET .)
     $end            reduce using rule 10 (graphdef -> EQUALS LBRACKET exprlist RBRACKET .)
 
-WARNING: 
-WARNING: Conflicts:
-WARNING: 
-WARNING: shift/reduce conflict for AND in state 26 resolved as shift
-WARNING: shift/reduce conflict for OR in state 26 resolved as shift

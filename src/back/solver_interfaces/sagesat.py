@@ -207,8 +207,12 @@ class SAGE_SAT(Glucose):
                 else:
                     sat = False
                     #TODO Unhack for False, true case
+                    #print(clauses)
                     for j in clauses:
-                        j.append(i)
+                        if is_satisfied:
+                            j.append(i)
+                        else:
+                            j.append(-i)
                     model = self.refine(clauses)
                     #TODO find all props first
                     break

@@ -14,6 +14,7 @@ from structures.operation import BaseOperation
 
 precedence = (
     ('right', 'AND', 'OR'),
+    ('right', 'NOT')
 
 )
 
