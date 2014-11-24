@@ -30,9 +30,22 @@ class BaseGraph():
         prev_vars = solver.nvars()
         solver.add_vars(self, self.internal_graph.vertices())
         solver.add_vars(self, self.internal_graph.edges(labels=False))
-        solver.add_clauses(edge_to_vertex_axiom(self, solver))
+        solver.add_instantiate_graph_constraint(edge_to_vertex_axiom(self, solver))
         curr_vars = solver.nvars()
         solver.graph_vars.append((self, prev_vars+1, curr_vars))
+   
+    def create_graph_from_model(self, solver, model):
+        '''
+        Given a model from the SAT solver, construct the graph.
+        '''
+        g = Graph()
+        on_vertices = solver.get_objects_in_model(model, self, self.internal_graph.vertices())
+        on_edges = solver.get_objects_in_model(model, self, self.internal_graph.edges(labels=False))
+        g.add_vertices(on_vertices)
+        g.add_edges(on_edges)
+        return g
+        
+        
    
     def vertices(self):
         return self.internal_graph.vertices()
@@ -56,32 +69,12 @@ class SageGraph():
         self.graph_type = graph_type.ID
         self.ID = ID
         if args == [None]:
-            self.args = None
+            self.args = []
         else:
             self.args = args
         
         self.line_number = line_number
         self.internal_graph = None
-    
-    
-    def rename_components(self, g):
-        '''
-        Certain constructors for graph families (e.g. CubeGraph) give different names to vertices.
-        This remaps them from 0 - |V|.
-        '''
-        #TODO remove, obsolete by relabel
-        assert isinstance(g, Graph)
-        num_vertices = g.num_verts()
-        new_g = Graph()
-        new_g.add_vertices(range(num_vertices))
-        vmap = {}
-        count = 0
-        for i in g.vertices():
-            vmap[i] = count
-            count += 1
-        for i in g.edges(labels=False):
-            new_g.add_edge(vmap[i[0]], vmap[i[1]])
-        return new_g
             
     def instantiate(self, solver, options):
         #TODO cache.
@@ -97,11 +90,10 @@ class SageGraph():
             self.internal_graph = attr(*self.args)
         else:
             self.internal_graph = attr()
-        self.internal_graph.relabel()#range(temp_graph.num_verts()))
-        
+        self.internal_graph.relabel()
         
     def __str__(self):
-        return self.graph_type + " " + self.ID.ID + "(" + str(self.args) + ")"
+        return self.graph_type + " " + self.ID.ID + "(" + ", ".join([str(i) for i in self.args]) + ")"
     
     def __repr__(self):
         return self.__str__()

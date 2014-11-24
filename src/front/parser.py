@@ -117,17 +117,6 @@ def p_expression(t):
 def p_expression_group(t):
     'expr : LPAREN expr RPAREN'
     t[0] = t[2]
-
-
-'''
-def p_expression_name(t):
-    'expr : ID'
-    try:
-        t[0] = names[t[1]]
-    except LookupError:
-        print("Undefined name '%s'" % t[1])
-        t[0] = 0
-'''
  
 def p_ID(p):
     'idprod : ID'

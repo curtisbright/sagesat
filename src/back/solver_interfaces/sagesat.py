@@ -9,6 +9,7 @@ import subprocess
 
 from sage.all import *
 from sage.sat.solvers import Glucose
+import z3
 
 from common import common
 from structures.logic import BoolConst
@@ -24,6 +25,7 @@ class SAGE_SAT(Glucose):
         self._g2v = {}
         self._t2b = {}
         self._b2t = {}
+        self.instantiate_graph_constraints = []
         self.graph_vars = []
         self.clauses = []
         self.process = None
@@ -39,6 +41,9 @@ class SAGE_SAT(Glucose):
             new_var = self.var()
             self._v2g[new_var] = (ID, i)
             self._g2v[(ID, i)] = new_var
+    
+    def add_instantiate_graph_constraint(self, expr):
+        self.instantiate_graph_constraints.append(expr)
     
     def add_bool(self, b):
         new_var = self.var()
@@ -80,7 +85,9 @@ class SAGE_SAT(Glucose):
         #returns the dimacs variable associated with the graph entity (edge or vertex),
         #If the graph is a sagegraph, returns True or False
         try:
-            b = self._g2v[(graph.ID.ID, entity)] 
+            b = self._g2v[(graph.ID.ID, entity)]
+            return z3.Bool(str(b))
+            #b = self._g2v[(graph.ID.ID, entity)]  old
         except:
             #sage graph case
             if entity in graph.internal_graph.vertices() or entity in graph.internal_graph.edges(labels=False):
@@ -93,7 +100,8 @@ class SAGE_SAT(Glucose):
         #negation of on
         val_temp = self.on(graph, entity)
         try:
-            val = -val_temp
+            #val = -val_temp old
+            return z3.Not(val_temp)
         except:
             if val_temp:
                 val = BoolConst(False)
@@ -121,13 +129,6 @@ class SAGE_SAT(Glucose):
             l = [self._v2g[i] for i in dimacs_vars if not model[i]]
         return [i for (_, i) in l]
             
-    def prevent_same_model_clause(self, model, _structures):
-        #Adds the most basic constraint to the solver, preventing the same EXACT instance from reoccuring.
-        clause = []
-        for i in range(1, len(model)):
-            if model[i]:
-                clause.append(-(i))
-        return [clause]
     
     def get_result(self):
         try:
@@ -145,7 +146,6 @@ class SAGE_SAT(Glucose):
         if "{output}" in command:
             output_filename = tmp_filename()
         command = command.format(input=self._headname, output=output_filename)
-        #print(sharpsat.get_num_solutions(self._headname))
         args = shlex.split(command)
         try:
             self.process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -154,33 +154,17 @@ class SAGE_SAT(Glucose):
         return self.get_result()
     
     def refine(self, clauses):
-        #print(len(clauses))
         for c in clauses:
             #add clause to output final dimacs file
             self.add_clause(c)
             c_str = " ".join([str(i) for i in c])
-            #print(c_str)
             self.process.stdin.write(c_str +"\n")
         #alert glucose that there are no more clauses
         self.process.stdin.write("0\n")
         return self.get_result()
-        '''
-        #OLD fix sage to handle multiple clauses
-        for c in clauses:
-            #add clause to output final dimacs file
-            self.add_clause(c)
-            c_str = " ".join([str(i) for i in c])
-            self.process.stdin.write(c_str +"\n")
-        return self.get_result()
-        '''
         
     def check(self, progress_count=None):
         '''
-        extra_check -- function that check some extra property of a sat solution,
-        should return the tuple (bool, clauses), 
-        where bool is True if the solution satisfies the check (in which case the value of clauses is ignored),
-        or False, in which case clauses are added to the solver.
-        structures -- list of objects that are utilized by the extra_check
         progress_count -- outputs the number of sat solutions returned for each multiple of progress_count
         '''
         count = 0 #number of sat solutions checked
@@ -197,38 +181,29 @@ class SAGE_SAT(Glucose):
             if progress_count and count % progress_count == 0:
                 print(count)
             sat = True
+            clauses = []
             for i in self._b2t.keys():
                 #TODO t2b needs to be fixed for recursive
                 #TODO should convert result to cnf, currently overkill
                 (baseop, args) = self.b2t(i)
-                (is_satisfied, clauses) = baseop.op.apply(self, model, args)
+                (is_satisfied, learn_args) = baseop.op.apply(self, model, args)
                 if is_satisfied == model[i]:
                     continue
                 else:
+                    learned_clauses = baseop.op.learn(self, model, *learn_args)
                     sat = False
-                    #TODO Unhack for False, true case
-                    #print(clauses)
-                    for j in clauses:
+                    for j in learned_clauses:
                         if is_satisfied:
                             j.append(i)
                         else:
                             j.append(-i)
-                    model = self.refine(clauses)
-                    #TODO find all props first
-                    break
+                    clauses += learned_clauses
+            if not sat:
+                model = self.refine(clauses)
             if sat:
                 #SAT -- kill glucose
+                print("CHECK ITERATIONS: " + str(count))
                 self.write(self.options.DIMACS_FILE)
                 self.refine([])    
                 return (True, model)
-            '''    
-            sys.exit()
-            if extra_check:
-                (is_satisfied, clauses) = extra_check(self, model, structures)
-                if is_satisfied:
-                    return (True, model)
-                else:
-                    model = self.refine(clauses)
-            return (True, model)
-            '''    
                 

@@ -3,8 +3,10 @@ Created on Mar 26, 2013
 
 @author: ezulkosk
 '''
+import z3
+
 import structures
-from structures.logic import ID
+from structures.logic import ID, BoolConst
 
 
 def visit(visitor, element):
@@ -60,5 +62,14 @@ def retvisit(visitor, element):
         return visitor.baseoperationVisit(element)
     elif isinstance(element, ID):
         return visitor.idVisit(element)
+    elif isinstance(element, z3.BoolRef):
+        #preconverted by blasted op
+        return visitor.boolref_visit(element)
+    elif isinstance(element, BoolConst):
+        return visitor.boolconst_visit(element)
+    elif isinstance(element, int):
+        #preconverted by blasted op
+        return visitor.blasted_int_visit(element)
     else:
         print("Error in visitor: " + str(element))
+        print(element.__class__)

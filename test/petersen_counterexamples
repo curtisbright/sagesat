@@ -1,0 +1,4 @@
+graph x(10)
+#sagegraph.PetersenGraph G()
+assert girth(x,5)
+assert k_regular(x,3)

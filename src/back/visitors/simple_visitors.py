@@ -7,7 +7,8 @@ import sys
 
 import z3
 
-from back.operations.blasted_ops import Eager, Lazy
+from back.operations.blasted_ops import Eager
+from back.operations.sage_ops import Lazy
 from back.visitors import VisitorTemplate
 from back.visitors.Visitor import visit, retvisit
 from structures.logic import BoolConst
@@ -80,7 +81,7 @@ class DumpBooleanAbstraction(VisitorTemplate.ReturnVisitorTemplate):
             
     
     def programVisit(self, program):
-        res = []
+        res = [retvisit(self, i) for i in self.solver.instantiate_graph_constraints]
         for i in program.ast:
             val = retvisit(self, i)
             if val:
@@ -124,8 +125,14 @@ class DumpBooleanAbstraction(VisitorTemplate.ReturnVisitorTemplate):
             #print(baseop.args)
             res = []
             blasted = baseop.op.apply(self.solver, *baseop.args)
+            return retvisit(self,blasted)
+            #TODO CLEAN
             #print(blasted)
-            
+            subargs = []
+            for i in blasted:
+                subargs.append(retvisit(self, i))
+            return z3.And(subargs)
+            sys.exit()
             flag = False
             for arg in blasted:
                 subres = []
@@ -149,6 +156,18 @@ class DumpBooleanAbstraction(VisitorTemplate.ReturnVisitorTemplate):
     def idVisit(self, element):
         v = self.solver.get_dimacs_for_bool(self.program.bools[element.ID])
         return z3.Bool("bool!" + str(v))
+    
+    def boolref_visit(self,element):
+        return element
+    
+    def blasted_int_visit(self, element):
+        if element < 0:
+            return z3.Not(z3.Bool(str(-element)))
+        else:
+            return z3.Bool(str(element))
+        
+    def boolconst_visit(self, element):
+        return element.val
     
 class BlastOps(VisitorTemplate.VisitorTemplate):
 

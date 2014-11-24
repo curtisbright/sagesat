@@ -68,16 +68,9 @@ def back(solver, program, options):
     solver.add_clauses(cnf)
     #sys.exit()
     #Visitor.visit(simple_visitors.BlastOps(program, solver, options), program)
-    (is_sat, model) = solver.check()
+    (is_sat, model) = solver.check(500)
     return (is_sat, model)
 
-def create_graph_from_model(solver, model, graph, low, high):
-    g = Graph()
-    on_vertices = solver.get_objects_in_model(model, graph, graph.internal_graph.vertices())
-    on_edges = solver.get_objects_in_model(model, graph, graph.internal_graph.edges(labels=False))
-    g.add_vertices(on_vertices)
-    g.add_edges(on_edges)
-    return g
 
 def display_results(solver, program, is_sat, model):
     if not is_sat:
@@ -86,7 +79,7 @@ def display_results(solver, program, is_sat, model):
     print("SAT")
     for (graph, low, high) in solver.graph_vars:
         print("")
-        g = create_graph_from_model(solver, model, graph, low, high)
+        g = graph.create_graph_from_model(solver, model)
         print(graph)
         print(g)
         print(g.vertices())
@@ -120,11 +113,10 @@ def run(FILE):
 
 if __name__ == '__main__':
     print("TODO:")
-    print("copy over work from hamilton cycle")
-    print("blast all eagers immediately and tseitin")
     print("recursive t2b")
+    print("simplify based on subgraph")
     
-    for i in [TEST_DIR + "hamilton"]:#TESTINPUT:
+    for i in [TEST_DIR + "petersen_counterexamples"]:#TESTINPUT:
         print("==================================")
         print(i)
         print("==================================")

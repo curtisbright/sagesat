@@ -1,14 +1,18 @@
 bool b1
 bool b2
 bool b3
-graph x(8)
+graph x(16)
 #TEST
-graph y(10)
-sagegraph.PetersenGraph P()
+#graph y(10)
+#sagegraph.PetersenGraph P()
 
-sagegraph.CubeGraph G(3)
+sagegraph.CubeGraph G(4)
 assert matching(x,G)
 assert maximal_matching(x,G)
 assert imperfect_matching(x, 0, G)
 assert b1 & b2 & !b3
-assert !extends_to_hamiltonian(x,G) | extends_to_hamiltonian(y,P)
+assert !extends_to_hamiltonian(x,G) #| extends_to_hamiltonian(y,P)
+#assert subgraph(P,P)
+#assert matching(G,G)
+#assert subgraph(G,x)
+#assert subgraph(x,G)
