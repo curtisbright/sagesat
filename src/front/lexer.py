@@ -22,7 +22,8 @@ tokens = (
     'COMMA',
     'EQUALS',
     'DOT',
-    'SAGEGRAPH'
+    'SAGEGRAPH',
+    'STR'
     )
 # Tokens
 reserved = {
@@ -42,6 +43,7 @@ t_EQUALS  = r'='
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_COMMA = r','
+t_STR = '".+"'
 
 
 def t_NUMBER(t):

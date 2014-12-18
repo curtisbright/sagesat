@@ -1,0 +1,4 @@
+graph x(3)
+graph G = "/home/ezulkosk/git/sagesat/test/graphinput"
+
+assert matching(x,G)

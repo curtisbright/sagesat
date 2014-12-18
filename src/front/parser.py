@@ -45,10 +45,16 @@ def p_boolvardecl(t):
 def p_graphvardecl(t):
     '''
     graphvardecl : GRAPH idprod LPAREN NUMBER RPAREN graphdef
+                 | GRAPH idprod graphdef
                  | SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN 
     '''
+    for i in t:
+        print(i)
     if t[1] == "graph":
-        t[0] = [BaseGraph(t[2], t[4], t[6], t.lexer.lineno)]
+        if len(t) == 4:
+            t[0] = [BaseGraph(t[2], t[3], None, t.lexer.lineno)]
+        else:
+            t[0] = [BaseGraph(t[2], t[4], t[6], t.lexer.lineno)]
     else:
         t[0] = [SageGraph(t[3], t[4], t[6], t.lexer.lineno)]
     #graphs[t[2]] = (t[4], t[5], t[7])
@@ -56,10 +62,13 @@ def p_graphvardecl(t):
 def p_graphdef(t):
     '''
     graphdef : EQUALS LBRACKET exprlist RBRACKET
+             | EQUALS  STR
              | empty 
     '''
     if len(t) == 5:
         t[0] = t[3]
+    elif len(t) == 3:
+        t[0] = t[2]
     else:
         t[0] = None
     

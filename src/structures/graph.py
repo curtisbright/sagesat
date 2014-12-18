@@ -21,6 +21,7 @@ class BaseGraph():
     
     def __init__(self, ID, order, adj_matrix, line_number):
         self.ID = ID
+        fix me for string input
         self.order = order
         self.internal_graph = CompleteGraph(self.order)
         self.adj_matrix =  adj_matrix

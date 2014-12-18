@@ -116,7 +116,7 @@ if __name__ == '__main__':
     print("recursive t2b")
     print("simplify based on subgraph")
     
-    for i in [TEST_DIR + "petersen_counterexamples"]:#TESTINPUT:
+    for i in [TEST_DIR + "inputtest"]:#TESTINPUT:
         print("==================================")
         print(i)
         print("==================================")
