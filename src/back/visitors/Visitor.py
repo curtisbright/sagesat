@@ -10,14 +10,6 @@ from structures.logic import ID, BoolConst
 
 
 def visit(visitor, element):
-    '''
-    Method used to determine which visit method to call, based on the type of element.
-    
-    :param element: A Clafer AST node.
-    :type element: ast.* 
-    
-    *see* :doc:`ast`
-    '''
     if isinstance(element, structures.program.Program):
         visitor.programVisit(element)
     elif isinstance(element, structures.logic.Bool):
