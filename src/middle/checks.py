@@ -4,7 +4,8 @@ Created on Oct 17, 2014
 @author: ezulkosk
 '''
 from structures.exceptions import NameNotFoundException, TypeException
-from structures.graph import BaseGraph, SageGraph
+from structures.graphs.basegraph import BaseGraph
+from structures.graphs.graph import CASGraph
 from structures.logic import Assert, Bool
 
 
@@ -28,7 +29,7 @@ def resolve_and_type_check(program):
             program.bools[line.ID.ID] = line
         elif isinstance(line, BaseGraph):
             program.graphs[line.ID.ID] = line
-        elif isinstance(line, SageGraph):
+        elif isinstance(line, CASGraph):
             program.graphs[line.ID.ID] = line
         else:
             raise NameNotFoundException(str(line), line.line_number)

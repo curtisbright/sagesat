@@ -14,9 +14,9 @@ def visit(visitor, element):
         visitor.programVisit(element)
     elif isinstance(element, structures.logic.Bool):
         visitor.boolVisit(element)
-    elif isinstance(element, structures.graph.BaseGraph):
+    elif isinstance(element, structures.graphs.graph.BaseGraph):
         visitor.basegraphVisit(element)
-    elif isinstance(element, structures.graph.SageGraph):
+    elif isinstance(element, structures.graphs.graph.CASGraph):
         visitor.sagegraphVisit(element)
     elif isinstance(element, structures.logic.Assert):
         visitor.assertVisit(element)
@@ -42,9 +42,9 @@ def retvisit(visitor, element):
         return visitor.programVisit(element)
     elif isinstance(element, structures.logic.Bool):
         return visitor.boolVisit(element)
-    elif isinstance(element, structures.graph.BaseGraph):
+    elif isinstance(element, structures.graphs.graph.BaseGraph):
         return visitor.basegraphVisit(element)
-    elif isinstance(element, structures.graph.SageGraph):
+    elif isinstance(element, structures.graphs.graph.CASGraph):
         return visitor.sagegraphVisit(element)
     elif isinstance(element, structures.logic.Assert):
         return visitor.assertVisit(element)

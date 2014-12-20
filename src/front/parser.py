@@ -7,7 +7,8 @@ Created on Oct 15, 2014
 from front.lexer import tokens
 from structures import logic
 from structures.exceptions import ParserException
-from structures.graph import BaseGraph, SageGraph
+from structures.graphs.basegraph import BaseGraph
+from structures.graphs.graph import CASGraph
 from structures.logic import Bool, Assert, Keyword
 from structures.operation import BaseOperation
 
@@ -51,12 +52,13 @@ def p_graphvardecl(t):
     for i in t:
         print(i)
     if t[1] == "graph":
+        print([i for i in t])
         if len(t) == 4:
             t[0] = [BaseGraph(t[2], t[3], None, t.lexer.lineno)]
         else:
             t[0] = [BaseGraph(t[2], t[4], t[6], t.lexer.lineno)]
     else:
-        t[0] = [SageGraph(t[3], t[4], t[6], t.lexer.lineno)]
+        t[0] = [CASGraph(t[3], t[4], t[6], t.lexer.lineno)]
     #graphs[t[2]] = (t[4], t[5], t[7])
     
 def p_graphdef(t):

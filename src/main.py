@@ -115,12 +115,8 @@ if __name__ == '__main__':
     print("TODO:")
     print("recursive t2b")
     print("simplify based on subgraph")
-    
-    for i in [TEST_DIR + "inputtest"]:#TESTINPUT:
-        print("==================================")
-        print(i)
-        print("==================================")
-        run(i)
-        time.sleep(0.1)
+    sys.argv.append("/home/ezulkosk/git/sagesat/test/inputtest")
+    spec = sys.argv[1]
+    run(spec)
     
     
