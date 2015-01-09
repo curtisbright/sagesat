@@ -3,6 +3,12 @@ Created on Dec 19, 2014
 
 @author: ezulkosk
 '''
+from sage.graphs.generators.basic import CompleteGraph
+from sage.graphs.graph import Graph
+
+from back.operations.blasted_ops import edge_to_vertex_axiom
+from common import common
+
 
 class BaseGraph():
     

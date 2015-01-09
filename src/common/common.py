@@ -21,7 +21,6 @@ def stderr_print(s):
 
 class Options():
     
-    
     def __init__(self):
         self.ENCODING = ENCODINGS.SAT
         #Options

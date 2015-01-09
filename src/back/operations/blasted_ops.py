@@ -6,11 +6,13 @@ Created on Oct 14, 2014
 Defines the operations that are eagerly encoded to SAT/BVs
 '''
 import itertools
+import math
 import sys
+
+import numpy
 
 import back
 from back.visitors import Visitor
-
 from structures.logic import Op, ID
 
 
@@ -84,6 +86,98 @@ class matching(Eager):
         #v => some incident edge <==> !v or some incident edge 
         clauses += [Op(ID('or'),[solver.off(x, v)] + [solver.on(x, e) for e in G.internal_graph.edges_incident(v, labels=None)]) for v in G.internal_graph.vertices()]
         return Op(ID('and'), clauses)
+    
+    
+def hamming_distance(s1, s2):
+    """ http://en.wikipedia.org/wiki/Hamming_distance """
+    """Return the Hamming distance between equal-length sequences"""
+    if len(s1) != len(s2):
+        raise ValueError("Undefined for sequences of unequal length")
+    return sum(ch1 != ch2 for ch1, ch2 in zip(s1, s2))
+
+class edge_antipodal(Eager):
+    
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def apply(solver, x, G): 
+        #get dims -- first arg of hypercube
+        dims = G.args[0]
+        #get antipodal edge pairs
+        edges = x.internal_graph.edges(labels=False)
+        exprs = []
+        for i in range(len(edges)-1):
+            for j in range(i+1, len(edges)):   
+                e1 = edges[i]
+                e2 = edges[j]
+                #TODO simplify 2^n-1 -e1...
+                b1u = ('{0:0' + str(dims) + 'b}').format(e1[0])
+                b1v = ('{0:0' + str(dims) + 'b}').format(e1[1])
+                b2u = ('{0:0' + str(dims) + 'b}').format(e2[0])
+                b2v = ('{0:0' + str(dims) + 'b}').format(e2[1]) 
+                if (hamming_distance(b1u, b2u) == dims and hamming_distance(b1v, b2v) == dims) or \
+                   (hamming_distance(b1u, b2v) == dims and hamming_distance(b1v, b2u) == dims):
+                    exprs.append(Op(ID('or'),[Op(ID('or'), [solver.off(G,e1), solver.off(G,e2)]) , Op(ID('or'), [Op(ID('and'), [solver.off(x, e1), solver.on(x,e2)]), Op(ID('and'), [solver.off(x, e2), solver.on(x,e1)])])]))
+        return Op(ID('and'), exprs)
+
+
+class nonsimple_labelling(Eager):
+    
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def apply(solver, g): 
+        #get dims -- first arg of hypercube
+        dims = int(math.log(g.order,2))
+        #get faces
+        combs = itertools.combinations(range(dims), dims - 2)
+        prods = list(itertools.product([0,1], repeat=(dims-2)))
+        face = list(itertools.product([0,1], repeat=2))
+        face_list = []
+        for c in combs:
+            #print("C" + str(c))
+            for p in prods:
+                #print("P" + str(p))
+                s = []
+                plist = list(p)
+                xtaken=False
+                for i in range(dims):
+                    if i in c:
+                        s.append(plist.pop(0))
+                    else:
+                        if xtaken:
+                            s.append('y')
+                        else:
+                            s.append('x')
+                            xtaken = True
+                        
+                #print(s)
+                face_list.append(s)
+        #print(len(combs))
+        corners_list = []
+        for f in face_list:
+            face = list(itertools.product([0,1], repeat=2))
+            corners = list(itertools.repeat(f,4))
+            for i in range(len(face)):
+                (x,y) = face[i]
+                corners[i] = [x if j == 'x' else y if j == 'y' else j for j in corners[i]]
+            corners = ["".join([str(k) for k in j]) for j in corners]
+            corners = [int(j,2) for j in corners]
+            #print(corners)
+            #corners = list(itertools.combinations(corners,2))
+            corners = [(min(corners[i], corners[j]), max(corners[i], corners[j])) for (i,j) in [(0,1),(1,3),(3,2),(2,0)]]
+            
+            corners_list.append(corners)
+        exprs = []
+        for c in corners_list:
+            block1 = Op(ID('and'), [solver.off(g,c[0]), solver.on(g,c[1]), solver.off(g,c[2]), solver.on(g,c[3])])
+            block2 = Op(ID('and'), [solver.on(g,c[0]), solver.off(g,c[1]), solver.on(g,c[2]), solver.off(g,c[3])])
+            exprs.append(Op(ID('or'), [block1, block2]))
+        return Op(ID('or'), exprs)
+        sys.exit()
+        
 
 class imperfect_matching(Eager):
     
@@ -120,7 +214,6 @@ class card(Eager):
             sys.exit("TODO card cases")
 
 class k_regular(Eager):
-    
     @staticmethod
     def apply(solver, x, k):
         res = []

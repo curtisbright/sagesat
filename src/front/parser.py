@@ -49,10 +49,10 @@ def p_graphvardecl(t):
                  | GRAPH idprod graphdef
                  | SAGEGRAPH DOT idprod idprod LPAREN exprlist RPAREN 
     '''
-    for i in t:
-        print(i)
+    #for i in t:
+    #    print(i)
     if t[1] == "graph":
-        print([i for i in t])
+        #print([i for i in t])
         if len(t) == 4:
             t[0] = [BaseGraph(t[2], t[3], None, t.lexer.lineno)]
         else:

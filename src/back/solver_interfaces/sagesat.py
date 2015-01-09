@@ -103,7 +103,7 @@ class SAGE_SAT(Glucose):
             #val = -val_temp old
             return z3.Not(val_temp)
         except:
-            if val_temp:
+            if val_temp.val:
                 val = BoolConst(False)
             else:
                 val = BoolConst(True)

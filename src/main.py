@@ -115,7 +115,7 @@ if __name__ == '__main__':
     print("TODO:")
     print("recursive t2b")
     print("simplify based on subgraph")
-    sys.argv.append("/home/ezulkosk/git/sagesat/test/inputtest")
+    sys.argv.append("/home/ezulkosk/git/sagesat/test/antipodal")
     spec = sys.argv[1]
     run(spec)
     

@@ -3,9 +3,11 @@ Created on Oct 14, 2014
 
 @author: ezulkosk
 '''
+import math
 import sys
 
 from sage.categories.sets_cat import EmptySetError
+from sage.graphs.graph import Graph
 
 from back.operations.blasted_ops import Constraint
 
@@ -43,6 +45,8 @@ class girth(Lazy):
 
 
 
+
+
 class extends_to_hamiltonian(Lazy):
     
     @staticmethod
@@ -76,7 +80,7 @@ class extends_to_hamiltonian(Lazy):
             return (True, [x, cycle_through_matching.edges(labels=None)]) #extends_to_hamiltonian.create_hamiltonian_cycle_clause(solver, model, x, cycle_through_matching.edges(labels=None)))
         else:
             #Hamiltonian cycle not found - ensure no future x has edges that are a subset of the current x.
-            return (False, [x, matching.edges(labels=None)])#extends_to_hamiltonian.create_hamiltonian_cycle_clause(solver, model, x, matching.edges(labels=None)))
+            return (False, [x, matching])#extends_to_hamiltonian.create_hamiltonian_cycle_clause(solver, model, x, matching.edges(labels=None)))
         
     @staticmethod    
     def learn(solver, model, x, cycle_edges):
@@ -91,7 +95,46 @@ class extends_to_hamiltonian(Lazy):
         #print(clause)
         return [clause]
 
+class exists_connected_antipodal_vertices(Lazy):
 
+    @staticmethod
+    def apply(solver, model, structures):
     
+        g = structures[0]
+        vertices = solver.get_objects_in_model(model, g, g.internal_graph.vertices())
+        dims = int(math.log(g.order, 2))
+        #print(vertices)
+        #print(dims)
+        edges = solver.get_objects_in_model(model, g, g.internal_graph.edges(labels=False))
+        #print(edges)
+        #create temp graph
+        t = Graph()
+        t.add_vertices(vertices)
+        t.add_edges(edges)
+        for i in range(g.order/2):
+            antipod = g.order - 1 - i
+            #print(i, antipod)
+            if i in vertices and antipod in vertices:
+                path = t.shortest_path(i, antipod)
+                if path:
+                    #print(path)
+                    return (True, [g, path])
+        print("COUNTER")
+        return (False, [])
+        
+    @staticmethod    
+    def learn(solver, model, g, path):
+        #print(path)
+        edges = []
+        prev = path[0]
+        for i in path[1:]:
+            edges.append((min(prev, i), max(prev,i)))
+            prev = i
+        dimacs_edges = solver.get_dimacs_for_objects(g, edges)
+        clause = [-i for i in dimacs_edges]
+        
+        
+        return [clause]
+
     
     
