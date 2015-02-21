@@ -12,6 +12,8 @@ from sage.graphs.graph import Graph
 from back.operations.blasted_ops import Constraint
 
 
+
+
 class Lazy(Constraint):
     
     @staticmethod
@@ -41,7 +43,17 @@ class girth(Lazy):
             return (False, [])
         else:
             return (True, [])
+        
+class enumerate(Lazy):
 
+    @staticmethod
+    def apply(solver, model, structures):
+        x = structures[0]
+        x_g = x.create_graph_from_model(solver, model)
+        print(x_g.edges(labels=False))
+        f =  open('/home/ezulkosk/forbidden_matchings', 'a')
+        f.write(str(x_g.edges(labels=False)) + "\n")
+        return (False, [])
 
 
 
@@ -96,7 +108,7 @@ class extends_to_hamiltonian(Lazy):
         return [clause]
 
 class exists_connected_antipodal_vertices(Lazy):
-
+    
     @staticmethod
     def apply(solver, model, structures):
     
@@ -124,6 +136,7 @@ class exists_connected_antipodal_vertices(Lazy):
         
     @staticmethod    
     def learn(solver, model, g, path):
+        solver.antipodal_file.write(str(path)+"\n")
         #print(path)
         edges = []
         prev = path[0]
@@ -132,7 +145,7 @@ class exists_connected_antipodal_vertices(Lazy):
             prev = i
         dimacs_edges = solver.get_dimacs_for_objects(g, edges)
         clause = [-i for i in dimacs_edges]
-        
+        #print(clause)
         
         return [clause]
 

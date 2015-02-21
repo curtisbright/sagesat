@@ -112,11 +112,18 @@ def run(FILE):
     display_results(solver, program, is_sat, model)
 
 if __name__ == '__main__':
+    
     print("TODO:")
     print("recursive t2b")
     print("simplify based on subgraph")
-    sys.argv.append("/home/ezulkosk/git/sagesat/test/antipodal")
+    
+    start = time.time()
+    print(start)
+    #sys.argv.append("/home/ezulkosk/git/sagesat/test/antipodal")
+    sys.argv.append("/home/ezulkosk/git/sagesat/test/forbidden_matchings_of_hamilton_cycle")
     spec = sys.argv[1]
     run(spec)
+    print("TIME")
+    print(time.time()-start)
     
     

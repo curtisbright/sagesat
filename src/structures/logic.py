@@ -37,22 +37,6 @@ class BoolConst():
     def __init__(self, val):
         self.val = val
     
-    1000
-    1001
-    1010
-    1011
-    
-    0000
-    0001
-    0010
-    0011
-    
-    0001
-    0010
-    0011
-    0100
-    
-    
     def __str__(self):
         return "B" + str(self.val)
     

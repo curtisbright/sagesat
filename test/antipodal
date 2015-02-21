@@ -1,0 +1,7 @@
+graph x(64)
+sagegraph.CubeGraph G(6)
+
+assert subgraph(x,G)
+assert edge_antipodal(x,G)
+assert nonsimple_labelling(x)
+assert !exists_connected_antipodal_vertices(x)

@@ -4,16 +4,23 @@ Created on Oct 17, 2014
 @author: ezulkosk
 '''
 
+
+
+
+
 import itertools
 
 from sage.all import *
-from sage.graphs.generators.basic import CompleteGraph
+from sage.graphs.generators.basic import CompleteGraph, CycleGraph
 from sage.graphs.generic_graph import GenericGraph
+from sage.graphs.graph_generators import graphs
 
 from back.operations.blasted_ops import edge_to_vertex_axiom
 from common import common
+import networkx as N
 import sage.graphs.generators.families as F
 import sage.graphs.generators.smallgraphs as C
+import sage.graphs.generators.basic as B
 from structures.exceptions import GraphOrderException
 
 
@@ -39,7 +46,10 @@ class CASGraph():
             try:
                 attr = getattr(C, self.graph_type)
             except:
-                raise Exception()
+                try:
+                    attr = getattr(B, self.graph_type)
+                except:
+                    raise Exception()
         if self.args:
             self.internal_graph = attr(*self.args)
         else:
