@@ -31,4 +31,5 @@ class Options():
         self.DIMACS_FILE = self.OUTPUT_DIRECTORY + "dimacs"
         self.GLUCOSE_OUTPUT_FILE = self.OUTPUT_DIRECTORY + "output"
         self.PROOF_CERTIFICATE_FILE = self.OUTPUT_DIRECTORY + "proofcertificate"
+        self.SHARPSAT = False
 

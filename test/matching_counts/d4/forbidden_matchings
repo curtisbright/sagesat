@@ -1,0 +1,6 @@
+graph x(16)
+
+sagegraph.CubeGraph G(4)
+assert matching(x,G)
+assert imperfect_matching(x, 0, G)
+

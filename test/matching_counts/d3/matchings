@@ -1,0 +1,5 @@
+graph x(8)
+
+sagegraph.CubeGraph G(3)
+assert matching(x,G)
+

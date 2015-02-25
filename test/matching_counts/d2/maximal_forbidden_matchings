@@ -1,0 +1,8 @@
+graph x(4)
+
+sagegraph.CubeGraph G(2)
+assert matching(x,G)
+assert imperfect_matching(x, 0, G)
+assert maximal_matching(x,G)
+
+

@@ -11,6 +11,7 @@ from sage.all import *
 from sage.sat.solvers import Glucose
 import z3
 
+from back.solver_interfaces import sharpsat
 from common import common
 from structures.logic import BoolConst
 
@@ -140,13 +141,24 @@ class SAGE_SAT(Glucose):
         except:
             return None
     
-    def initial_call(self):
+    def dump_to_dimacs(self):
         self.write()
         output_filename = self.options.GLUCOSE_OUTPUT_FILE
         command = self._command.strip()
         if "{output}" in command:
             output_filename = tmp_filename()
         command = command.format(input=self._headname, output=output_filename)
+        return command
+        
+    def sharpSAT(self):
+        self.dump_to_dimacs()
+        return sharpsat.get_num_solutions(self._headname, self.options)
+         
+    def initial_call(self):
+        if self.options.SHARPSAT:
+            return self.sharpSAT()
+        
+        command = self.dump_to_dimacs()
         args = shlex.split(command)
         try:
             self.process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)

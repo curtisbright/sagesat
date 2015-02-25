@@ -43,7 +43,7 @@ def front(FILE):
         stderr_print(e)
         return (False, None)
     program = Program(ast)
-    print(program.toStr(0))
+    #print(program.toStr(0))
     return (True, program)
 
 def middle(solver, program, options):
@@ -68,8 +68,7 @@ def back(solver, program, options):
     solver.add_clauses(cnf)
     #sys.exit()
     #Visitor.visit(simple_visitors.BlastOps(program, solver, options), program)
-    (is_sat, model) = solver.check(500)
-    return (is_sat, model)
+    
 
 
 def display_results(solver, program, is_sat, model):
@@ -99,8 +98,7 @@ def display_results(solver, program, is_sat, model):
             except:
                 print("UNCONSTRAINED BOOL: RESULTS MAY NOT MATCH!")
   
-def run(FILE):
-    options = Options()
+def run(FILE, options=Options()):
     solver = sagesat.SAGE_SAT(options)
     (success, program) = front(FILE)
     if not success:
@@ -108,14 +106,20 @@ def run(FILE):
     success = middle(solver, program, options)
     if not success:
         return
-    (is_sat, model) = back(solver, program, options)
-    display_results(solver, program, is_sat, model)
+    back(solver, program, options)
+    if solver.options.SHARPSAT:
+        return solver.sharpSAT()
+    else:
+        (is_sat, model) = solver.check(500)
+        display_results(solver, program, is_sat, model)
+        return is_sat
+    
 
 if __name__ == '__main__':
     
-    print("TODO:")
-    print("recursive t2b")
-    print("simplify based on subgraph")
+    #print("TODO:")
+    #print("recursive t2b")
+    #print("simplify based on subgraph")
     
     start = time.time()
     print(start)
