@@ -18,8 +18,8 @@ Embedding of the SAGE CAS within a SAT solver.
 	Must be run within the SAGE environment, from the src directory.
 
 	* To run either case study:
-		python main.py ../test/hamilton
-		python main.py ../test/antipodal
+		* python main.py ../test/hamilton
+		* python main.py ../test/antipodal
 
 	* To obtain matching counts for Table 1:
-		python matching_counts.py
+		* python matching_counts.py
