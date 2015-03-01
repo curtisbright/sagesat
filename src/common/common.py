@@ -24,10 +24,10 @@ class Options():
     def __init__(self):
         self.ENCODING = ENCODINGS.SAT
         #Options
-        self.GLUCOSE_LOCATION = "/home/ezulkosk/Downloads/glucose-3.0/core/glucose"
-        self.SHARPSAT_LOCATION = "/home/ezulkosk/git/hamilton/bin/sharpSAT"
+        self.GLUCOSE_LOCATION = "../bin/glucose"
+        self.SHARPSAT_LOCATION = "../bin/sharpSAT"
         
-        self.OUTPUT_DIRECTORY="/home/ezulkosk/git/sagesat/results/"
+        self.OUTPUT_DIRECTORY="../results/"
         self.DIMACS_FILE = self.OUTPUT_DIRECTORY + "dimacs"
         self.GLUCOSE_OUTPUT_FILE = self.OUTPUT_DIRECTORY + "output"
         self.PROOF_CERTIFICATE_FILE = self.OUTPUT_DIRECTORY + "proofcertificate"

@@ -116,18 +116,9 @@ def run(FILE, options=Options()):
     
 
 if __name__ == '__main__':
-    
-    #print("TODO:")
-    #print("recursive t2b")
-    #print("simplify based on subgraph")
-    
-    start = time.time()
-    print(start)
-    #sys.argv.append("/home/ezulkosk/git/sagesat/test/antipodal")
-    sys.argv.append("/home/ezulkosk/git/sagesat/test/forbidden_matchings_of_hamilton_cycle")
+    #sys.argv.append("../test/antipodal")
+    #sys.argv.append("../test/forbidden_matchings_of_hamilton_cycle")
     spec = sys.argv[1]
     run(spec)
-    print("TIME")
-    print(time.time()-start)
     
     
