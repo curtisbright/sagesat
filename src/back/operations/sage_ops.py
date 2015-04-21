@@ -50,8 +50,9 @@ class enumerate(Lazy):
     def apply(solver, model, structures):
         x = structures[0]
         x_g = x.create_graph_from_model(solver, model)
-        print(x_g.edges(labels=False))
-        f =  open('/home/ezulkosk/forbidden_matchings', 'a')
+        #print(x_g.edges(labels=False))
+        #TODO: fix up to be 'w' instead of 'a'
+        f = open('/home/ezulkosk/forbidden_matchings_found', 'a')
         f.write(str(x_g.edges(labels=False)) + "\n")
         return (False, [])
 

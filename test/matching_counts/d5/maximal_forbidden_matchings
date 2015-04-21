@@ -4,5 +4,6 @@ sagegraph.CubeGraph G(5)
 assert matching(x,G)
 assert imperfect_matching(x, 0, G)
 assert maximal_matching(x,G)
-
+assert required_edge(x,1,3)
+#assert enumerate(x)
 

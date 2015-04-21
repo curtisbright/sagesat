@@ -6,6 +6,7 @@ Created on Sep 22, 2014
 
 import shlex
 import subprocess
+import time
 
 from sage.all import *
 from sage.sat.solvers import Glucose
@@ -31,6 +32,7 @@ class SAGE_SAT(Glucose):
         self.graph_vars = []
         self.clauses = []
         self.process = None
+        self.refine_time = 0
         sage.sat.solvers.Glucose.__init__(self, filename=options.DIMACS_FILE, command=self.command)
         
     def add_clauses(self, clauses):
@@ -142,12 +144,16 @@ class SAGE_SAT(Glucose):
             return None
     
     def dump_to_dimacs(self):
+        
+        
         self.write()
         output_filename = self.options.GLUCOSE_OUTPUT_FILE
         command = self._command.strip()
         if "{output}" in command:
             output_filename = tmp_filename()
         command = command.format(input=self._headname, output=output_filename)
+        if self.options.DUMP_INITIAL_DIMACS:
+            print("Dimacs in " + self.options.DIMACS_FILE + ", exiting.")
         return command
         
     def sharpSAT(self):
@@ -159,6 +165,8 @@ class SAGE_SAT(Glucose):
             return self.sharpSAT()
         
         command = self.dump_to_dimacs()
+        if self.options.DUMP_INITIAL_DIMACS:
+            return None
         args = shlex.split(command)
         try:
             self.process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -167,6 +175,7 @@ class SAGE_SAT(Glucose):
         return self.get_result()
     
     def refine(self, clauses):
+        start = time.time()
         for c in clauses:
             #add clause to output final dimacs file
             self.add_clause(c)
@@ -174,7 +183,9 @@ class SAGE_SAT(Glucose):
             self.process.stdin.write(c_str +"\n")
         #alert glucose that there are no more clauses
         self.process.stdin.write("0\n")
-        return self.get_result()
+        res = self.get_result()
+        self.refine_time += time.time() - start
+        return res
         
     def check(self, progress_count=None):
         '''

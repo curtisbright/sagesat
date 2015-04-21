@@ -63,6 +63,24 @@ class subgraph(Eager):
             clauses.append(Op(ID('or'), [solver.off(x, i), solver.on(G, i)]))
         return Op(ID('and'), clauses)
     
+class required_edge(Eager):
+    
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def apply(solver, x, u, v):
+        return Op(ID('and'), [solver.on(x, (u,v))])
+    
+class disallowed_edge(Eager):
+    
+    def __init__(self):
+        pass
+    
+    @staticmethod
+    def apply(solver, x, u, v):
+        return Op(ID('and'), [solver.off(x, (u,v))])   
+    
     
 class matching(Eager):
     
@@ -82,6 +100,8 @@ class matching(Eager):
             for i in range(len(inc_edges)):
                 for j in range(i+1, len(inc_edges)):
                     clauses.append(Op(ID('or'), [solver.off(G, inc_edges[i]), solver.off(G, inc_edges[j]), solver.off(x, inc_edges[i]), solver.off(x, inc_edges[j])]))
+        #print(clauses)
+        #sys.exit()
         #since we are returning a graph instead of a set, only include vertices that are actually matched
         #v => some incident edge <==> !v or some incident edge 
         clauses += [Op(ID('or'),[solver.off(x, v)] + [solver.on(x, e) for e in G.internal_graph.edges_incident(v, labels=None)]) for v in G.internal_graph.vertices()]

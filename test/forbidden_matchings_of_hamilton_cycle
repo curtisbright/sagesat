@@ -1,7 +1,11 @@
 graph x(32)
 
 sagegraph.CycleGraph G(32)
+#sagegraph.CubeGraph G2(5)
 assert matching(x,G)
 assert maximal_matching(x,G)
 assert imperfect_matching(x, 0, G)
-assert enumerate(x,G)
+#assert matching(x,G2)
+#assert maximal_matching(x,G2)
+#assert imperfect_matching(x, 0, G2)
+assert enumerate(x)
