@@ -93,7 +93,7 @@ def check_maximal(cycle, matching, q5_edges, my_partition = None):
     #print(vertices)
     #print(G.edges)
     for (u,v) in q5_edges:
-        if u != 0 and not(u in vertices or v in vertices):
+        if u != 0 and u not in vertices and v not in vertices:
             #print("BAD")
             #print(u,v)
             #sys.exit()
@@ -103,11 +103,12 @@ def check_maximal(cycle, matching, q5_edges, my_partition = None):
 def check_partition(matching, vertices, my_partition = None):
     if not my_partition:
         return True
+    #print(my_partition)
     for (u,v) in my_partition:
         if v == -1 and u in vertices:
             return False
-        elif not (u,v) in matching:
-                return False
+        elif v != -1 and not (u,v) in matching:
+            return False
     return True
 
 if __name__ == '__main__':
@@ -123,7 +124,8 @@ if __name__ == '__main__':
     #which cycle to start at
     start_index = num_iters * int(sys.argv[3])
 
-    q5_edges = [(0, 1), (0, 2), (0, 4), (0, 8), (0, 16), (1, 3), (1, 5), (1, 9), (1, 17), (2, 3), (2, 6), 
+    q5_edges = [#(0, 1), (0, 2), (0, 4), (0, 8), (0, 16), 
+                (1, 3), (1, 5), (1, 9), (1, 17), (2, 3), (2, 6), 
                 (2, 10), (2, 18), (3, 7), (3, 11), (3, 19), (4, 5), (4, 6), (4, 12), (4, 20), (5, 7), (5, 13), 
                 (5, 21), (6, 7), (6, 14), (6, 22), (7, 15), (7, 23), (8, 9), (8, 10), (8, 12), (8, 24), 
                 (9, 11), (9, 13), (9, 25), (10, 11), (10, 14), (10, 26), (11, 15), (11, 27), (12, 13), (12, 14), 
@@ -177,8 +179,8 @@ if __name__ == '__main__':
         if iters - 1 == num_iters:
             break
         if iters %500 == 0:
-            print(iters, lrest, lrest - prev_lrest)
-            prev_lrest = lrest
+                print(iters, lrest, lrest - prev_lrest)
+                prev_lrest = lrest
         perm = compute_perm(c)
         matchings_perms = []
         
