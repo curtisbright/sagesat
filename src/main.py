@@ -72,6 +72,14 @@ def back(solver, program, options):
 
 
 def display_results(solver, program, is_sat, model):
+    if solver.options.RECORD_TIMES:
+        f = open("/home/ezulkosk/ham.out", 'w')
+        f.write("Refine Times: " + str(sum(solver.refine_times)) + "\n")
+        f.write("Solver Times: " + str(sum(solver.solver_times)) + "\n")
+        f.write(",".join([str(i) for i in solver.refine_times]) + "\n")
+        f.write(",".join([str(i) for i in solver.solver_times]) + "\n")
+        f.close()
+    
     if not is_sat:
         print("UNSAT " + str(model))
         return
@@ -118,13 +126,14 @@ def run(FILE, options=Options()):
 
 if __name__ == '__main__':
     import cProfile
-    #sys.argv.append("../test/hamilton")
+    sys.argv.append("../test/hamilton")
     #sys.argv.append("../test/antipodal")
-    sys.argv.append("../test/forbidden_matchings_of_hamilton_cycle")
+    #sys.argv.append("../test/forbidden_matchings_of_hamilton_cycle")
     #sys.argv.append("../test/matching_counts/d5/maximal_forbidden_matchings")
     #sys.argv.append("../test/enum_d5_matchings/e13")
     #sys.argv.append("../test/count_matchings_cycle")
     options = Options()
+    options.RECORD_TIMES = True
     #options.DUMP_INITIAL_DIMACS = True
     spec = sys.argv[1]
     run(spec, options)

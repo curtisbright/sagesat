@@ -183,8 +183,8 @@ if __name__ == '__main__':
                 prev_lrest = lrest
         perm = compute_perm(c)
         matchings_perms = []
-        
-        for i in forbidden_matchings:
+        temp_forbidden_matchings = [i for i in forbidden_matchings]
+        for i in temp_forbidden_matchings:
             i = sorted([(min(perm[u],perm[v]), max(perm[u],perm[v])) for (u,v) in i])
             if not check_maximal(c, i, q5_edges, my_partition):
                 continue           

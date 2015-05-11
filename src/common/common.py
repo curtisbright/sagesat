@@ -26,7 +26,7 @@ class Options():
         #Options
         self.GLUCOSE_LOCATION = "../bin/glucose"
         self.SHARPSAT_LOCATION = "../bin/sharpSAT"
-        
+        self.RECORD_TIMES = False
         self.OUTPUT_DIRECTORY="../results/"
         self.DIMACS_FILE = self.OUTPUT_DIRECTORY + "dimacs"
         self.DUMP_INITIAL_DIMACS=False

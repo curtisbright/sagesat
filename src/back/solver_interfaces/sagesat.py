@@ -32,7 +32,9 @@ class SAGE_SAT(Glucose):
         self.graph_vars = []
         self.clauses = []
         self.process = None
-        self.refine_time = 0
+        if options.RECORD_TIMES:
+            self.refine_times = []
+            self.solver_times = []
         sage.sat.solvers.Glucose.__init__(self, filename=options.DIMACS_FILE, command=self.command)
         
     def add_clauses(self, clauses):
@@ -135,8 +137,12 @@ class SAGE_SAT(Glucose):
             
     
     def get_result(self):
+        if self.options.RECORD_TIMES:
+            start = time.time()
         try:
             model = self.process.stdout.readline()
+            if self.options.RECORD_TIMES:
+                self.solver_times.append(time.time() - start)
             s = map(int, model.strip().split(" "))
             s = (None,) + tuple(e>0 for e in s)
             return list(s)
@@ -175,7 +181,6 @@ class SAGE_SAT(Glucose):
         return self.get_result()
     
     def refine(self, clauses):
-        start = time.time()
         for c in clauses:
             #add clause to output final dimacs file
             self.add_clause(c)
@@ -184,7 +189,7 @@ class SAGE_SAT(Glucose):
         #alert glucose that there are no more clauses
         self.process.stdin.write("0\n")
         res = self.get_result()
-        self.refine_time += time.time() - start
+        
         return res
         
     def check(self, progress_count=None):
@@ -206,6 +211,8 @@ class SAGE_SAT(Glucose):
                 print(count)
             sat = True
             clauses = []
+            if self.options.RECORD_TIMES:
+                start = time.time()
             for i in self._b2t.keys():
                 #TODO t2b needs to be fixed for recursive
                 #TODO should convert result to cnf, currently overkill
@@ -222,6 +229,8 @@ class SAGE_SAT(Glucose):
                         else:
                             j.append(-i)
                     clauses += learned_clauses
+            if self.options.RECORD_TIMES:
+                self.refine_times.append(time.time() - start)
             if not sat:
                 model = self.refine(clauses)
             if sat:
