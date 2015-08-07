@@ -7,6 +7,7 @@ Embedding of the SAGE CAS within a SAT solver.
 	* sharpSAT (only for matching counts in Table 1)
 	* Z3 (purely for Tseitin-encoding, will eventually be removed)
 	* Glucose-SAGE extension (https://bitbucket.org/ezulkosk/glucose-sage)
+	  	* Copy the glucose executable in core to sagesat/bin
 
 * Locations for Glucose and sharpSAT must be set in src/common/common.py.
 

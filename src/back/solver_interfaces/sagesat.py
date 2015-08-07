@@ -27,7 +27,7 @@ class SAGE_SAT(Glucose):
         self._g2v = {}
         self._t2b = {}
         self._b2t = {}
-        self.antipodal_file = file("/home/ezulkosk/git/sagesat/results/antipodal_edges", 'w')
+        self.antipodal_file = file("/home/ezulkosk/pycharm/sagesat/results/antipodal_edges", 'w')
         self.instantiate_graph_constraints = []
         self.graph_vars = []
         self.clauses = []

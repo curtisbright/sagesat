@@ -126,7 +126,7 @@ def run(FILE, options=Options()):
 
 if __name__ == '__main__':
     import cProfile
-    sys.argv.append("../test/hamilton")
+    sys.argv.append("../test/petersen")
     #sys.argv.append("../test/antipodal")
     #sys.argv.append("../test/forbidden_matchings_of_hamilton_cycle")
     #sys.argv.append("../test/matching_counts/d5/maximal_forbidden_matchings")
